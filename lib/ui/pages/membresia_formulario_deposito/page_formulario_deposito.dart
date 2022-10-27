@@ -3,16 +3,16 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:inmobiliariaapp/auxiliares/datos_auxiliares.dart';
-import 'package:inmobiliariaapp/domain/entities/membresia_pago.dart';
-import 'package:inmobiliariaapp/domain/entities/banco.dart';
-import 'package:inmobiliariaapp/domain/entities/membresia_planes_pago.dart';
-import 'package:inmobiliariaapp/domain/usecases/usuario/usecase_usuario.dart';
+import 'package:inmobiliariaapp/domain/entities/membership_payment.dart';
+import 'package:inmobiliariaapp/domain/entities/bank.dart';
+import 'package:inmobiliariaapp/domain/entities/membership_plan_payment.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:inmobiliariaapp/domain/usecases/user/usecase_user.dart';
 import 'package:inmobiliariaapp/widgets/popup_menu_cuenta_banco.dart';
-import 'package:inmobiliariaapp/ui/provider/usuarios_info.dart';
-import 'package:inmobiliariaapp/widgets/textField_modelos.dart';
+import 'package:inmobiliariaapp/ui/provider/user/user_provider.dart';
+import 'package:inmobiliariaapp/widgets/f_text_fields.dart';
 import 'package:provider/provider.dart';
-enum getTipoTransaccion{
+enum GetTipoTransaction{
   deposito,
   transferencia
 }
@@ -20,9 +20,9 @@ enum getTipoTransaccion{
 class PageFormularioDeposito extends StatefulWidget {
   PageFormularioDeposito({Key? key,required this.plan,required this.metodoPago,
   required this.bancos}) : super(key: key);
-  final MembresiaPlanesPago plan;
+  final MembershipPlanPayment plan;
   final int metodoPago;
-  final List<CuentaBanco> bancos;
+  final List<BankAccount> bancos;
   bool uploading=false;
   final picker=ImagePicker();
   @override
@@ -36,26 +36,26 @@ class _PageFormularioDepositoState extends State<PageFormularioDeposito> {
   int tipoTransaccion=0;
   String fechaActivacion="";
   Map<String,dynamic>? mapFechaActivacion;
-  CuentaBanco cuentaBanco=CuentaBanco.vacio();
+  BankAccount cuentaBanco=BankAccount.empty();
   double heigthImagen=0;
   double widthImagen=0;
   final picker=ImagePicker();
   bool uploading=false;
-  MembresiaPago membresiaPago=MembresiaPago.vacio();
+  MembershipPayment membresiaPago=MembershipPayment.empty();
   @override
   void initState() { 
     super.initState();
     controllerNombreDepositante=TextEditingController(text: "");
     controllerNumeroDeposito=TextEditingController(text: "");
     mapFechaActivacion=getAdelantarDias(true);
-    membresiaPago.medioPago="Depósito";
-    membresiaPago.membresiaPlanesPago=widget.plan;
-    membresiaPago.montoPago=widget.plan.costo;
+    membresiaPago.paymentMedium="Depósito";
+    membresiaPago.membershipPlanPayment=widget.plan;
+    membresiaPago.paymentAmount=widget.plan.cost;
     //costoTotal=getMontoPagar(mapFechaActivacion!, widget.plan.costo);
   }
   @override
   Widget build(BuildContext context) {
-    dynamic imagen=membresiaPago.linkImagenDeposito;
+    dynamic imagen=membresiaPago.depositImageLink;
     heigthImagen=MediaQuery.of(context).size.height/1.7;
     widthImagen=MediaQuery.of(context).size.width/1.1;
     
@@ -76,7 +76,7 @@ class _PageFormularioDepositoState extends State<PageFormularioDeposito> {
                 children: [
                   Column(
                     children: [
-                      Text("Plan ${widget.plan.nombrePlan}",
+                      Text("Plan ${widget.plan.planName}",
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold
@@ -89,7 +89,7 @@ class _PageFormularioDepositoState extends State<PageFormularioDeposito> {
                           fontWeight: FontWeight.bold
                         ),
                       ),
-                      Text("Monto a pagar : ${widget.plan.costo.toString()} Bs.",
+                      Text("Monto a pagar : ${widget.plan.cost.toString()} Bs.",
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold
@@ -100,22 +100,22 @@ class _PageFormularioDepositoState extends State<PageFormularioDeposito> {
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
                           children: [
-                            TextFFBasico(
+                            FTextFieldBasico(
                               controller: controllerNumeroDeposito!, 
                               labelText: "Número de depósito", 
                               onChanged: (x){
-                                membresiaPago.numeroTransaccion=x;
+                                membresiaPago.transactionNumber=x;
                               }
                             ),
                             SizedBox(height:10),
-                            TextFFBasico(
+                            FTextFieldBasico(
                               controller: controllerNombreDepositante!, 
                               labelText: "Depositante", 
                               onChanged: (x){
-                                membresiaPago.nombreDepositante=x;
+                                membresiaPago.depositorName=x;
                               }
                             ),
-                            PopupMenuCuentaBanco(cuentaBanco: membresiaPago.cuentaBanco,bancos: widget.bancos,
+                            PopupMenuCuentaBanco(cuentaBanco: membresiaPago.bankAccount,bancos: widget.bancos,
                               heightContainer: 70,
                               widthEtiqueta: MediaQuery.of(context).size.width,
                               widthContainer: MediaQuery.of(context).size.width
@@ -140,9 +140,9 @@ class _PageFormularioDepositoState extends State<PageFormularioDeposito> {
                                 Container(
                                   child: Radio<int>(
                                     groupValue: tipoTransaccion,
-                                    value: getTipoTransaccion.deposito.index,
+                                    value: GetTipoTransaction.deposito.index,
                                     onChanged: (value){
-                                      membresiaPago.medioPago="Depósito";
+                                      membresiaPago.paymentMedium="Depósito";
                                       setState(() {
                                         tipoTransaccion=value!;
                                       });
@@ -161,10 +161,10 @@ class _PageFormularioDepositoState extends State<PageFormularioDeposito> {
                                 Container(
                                   child: Radio<int>(
                                     groupValue: tipoTransaccion,
-                                    value: getTipoTransaccion.transferencia.index,
+                                    value: GetTipoTransaction.transferencia.index,
                                     onChanged: (value){
                                       setState(() {
-                                        membresiaPago.medioPago="Transferencia";
+                                        membresiaPago.paymentMedium="Transferencia";
                                         tipoTransaccion=value!;
                                       });
                                       
@@ -234,56 +234,41 @@ class _PageFormularioDepositoState extends State<PageFormularioDeposito> {
     );
   }
   chooseImage() async{
-    final pickedFile=await picker.getImage(source: ImageSource.gallery);
+    final pickedFile=await picker.pickImage(source: ImageSource.gallery);
     setState(() {
      // widget.imagenComprobante.removeAt(0);
-     membresiaPago.linkImagenDeposito=File(pickedFile!.path);
+     membresiaPago.depositImageLink=File(pickedFile!.path);
       //widget.imagenComprobante.add(File(pickedFile!.path));
       //print(widget.imagenComprobante[0]);
     });
     // ignore: unnecessary_null_comparison
-    if(pickedFile!.path == null) retrieveLostData();
-  }
-  Future<void> retrieveLostData() async{
-    final LostData response=await picker.getLostData();
-    if(response.isEmpty){
-      return;
-    }
-    if(response.file!=null){
-      setState((){
-        membresiaPago.linkImagenDeposito=File(response.file!.path);
-
-        //_image.add(File(response.file!.path));
-      });
-    }else{
-      print(response.file);
-    }
+    if(pickedFile!.path == null) picker.retrieveLostData();
   }
 }
 class BotonRegistrarMembresiaPago extends StatefulWidget {
   const BotonRegistrarMembresiaPago({Key? key,
   required this.membresia}) : super(key: key);
-  final MembresiaPago membresia;
+  final MembershipPayment membresia;
 
   @override
   _BotonRegistrarMembresiaPagoState createState() => _BotonRegistrarMembresiaPagoState();
 }
 
 class _BotonRegistrarMembresiaPagoState extends State<BotonRegistrarMembresiaPago> {
-  UseCaseUsuario useCaseUsuario=UseCaseUsuario();
+  UseCaseUser useCaseUsuario=UseCaseUser();
   @override
   Widget build(BuildContext context) {
-    final usuario=Provider.of<UsuariosInfo>(context);
+    final usuario=Provider.of<UserProvider>(context);
     return ElevatedButton(
       onPressed: ()async{
         //Navigator.popAndPushNamed(context, routeName);
-        String rutaImagen=await uploadFile([widget.membresia.linkImagenDeposito]);
-        widget.membresia.linkImagenDeposito=rutaImagen;
-        widget.membresia.usuario=usuario.usuario;
-        useCaseUsuario.registrarMembresiaPago(widget.membresia)
+        String rutaImagen=await uploadFile([widget.membresia.depositImageLink]);
+        widget.membresia.depositImageLink=rutaImagen;
+        widget.membresia.user=usuario.user;
+        useCaseUsuario.registerMembershipPayment(widget.membresia)
         .then((resultado) {
-          if(resultado["completado"]){
-            usuario.membresiaPagos.add(resultado["membresia_pago"]);
+          if(resultado["completed"]){
+            usuario.membershipsPayments.add(resultado["membrerships_payments"]);
             Navigator.pop(context);
           }
         });

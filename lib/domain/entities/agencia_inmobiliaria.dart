@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_database/firebase_database.dart';
 class AgenciaInmobiliaria{
   String id="";
   String nombreAgencia="";
@@ -28,13 +27,13 @@ class AgenciaInmobiliaria{
     this.telefono=obj["telefono"];
     this.web=obj["web"];
   }
-  AgenciaInmobiliaria.fromSnapshot(DataSnapshot snapshot){
+  /*AgenciaInmobiliaria.fromSnapshot(DataSnapshot snapshot){
     id=snapshot.key!;
     nombreAgencia=snapshot.value["nombre_agencia"];
     nombrePropietario=snapshot.value["nombre_propietario"];
     telefono=snapshot.value["telefono"];
     web=snapshot.value["web"];
-  }
+  }*/
   factory AgenciaInmobiliaria.fromFireStore(DocumentSnapshot snapshot){
     return AgenciaInmobiliaria(
       id: snapshot.id,

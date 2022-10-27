@@ -1,6 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:inmobiliariaapp/ui/pages/principal/widgets/inmueble_item/inmueble_item.dart';
+import 'package:inmobiliariaapp/ui/pages/home/widgets/item_property/item_property.dart';
 import 'package:inmobiliariaapp/ui/provider/lista_inmuebles_filtrado.dart';
 import 'package:provider/provider.dart';
 
@@ -30,15 +30,15 @@ class _PageNotificacionesInmueblesNuevosState extends State<PageNotificacionesIn
             itemCount: _inmueblesFiltrado.inmueblesNuevos.length,
             dragStartBehavior: DragStartBehavior.down,
             itemBuilder:(_,i){
-              var inmueble=_inmueblesFiltrado.inmueblesNuevos[i];
+              var propertyTotal=_inmueblesFiltrado.inmueblesNuevos[i];
               //print("object J 0}");
               if(i<_inmueblesFiltrado.inmueblesNuevos.length-1){
-                return InmuebleItem(inmuebleTotal:inmueble,index:i);
+                return ItemProperty(propertyTotal:propertyTotal,index:i);
               }
               return Container(
                 child: Column(
                   children: [
-                    InmuebleItem(inmuebleTotal: inmueble,index: i,),
+                    ItemProperty(propertyTotal: propertyTotal,index: i,),
                     SizedBox(height: 10,)
                   ],
                 ),

@@ -1,187 +1,181 @@
 import 'package:flutter/cupertino.dart';
-import 'package:inmobiliariaapp/domain/entities/inmueble.dart';
-import 'package:inmobiliariaapp/domain/entities/inmueble_total.dart';
+import 'package:inmobiliariaapp/domain/entities/property.dart';
+import 'package:inmobiliariaapp/domain/entities/property_total.dart';
 import 'dart:math';
 
-import 'package:inmobiliariaapp/domain/entities/usuario.dart';
+import 'package:inmobiliariaapp/domain/entities/user.dart';
 
-class DatosAutomaticosInmueble{
-  Inmueble inmueble;
-  InmuebleInternas inmuebleInternas;
-  InmuebleComunidad inmuebleComunidad;
-  InmueblesOtros inmueblesOtros;
-  Usuario creador;
-  Usuario propietario;
-  DatosAutomaticosInmueble({
-    required this.inmueble,
-    required this.inmuebleInternas,
-    required this.inmuebleComunidad,
-    required this.inmueblesOtros,
-    required this.creador,
-    required this.propietario
+class AutoDataProperty{
+  Property property;
+  PropertyInternal propertyInternal;
+  PropertyCommunity propertyCommunity;
+  PropertyOthers propertyOthers;
+  User creator;
+  User owner;
+  AutoDataProperty({
+    required this.property,
+    required this.propertyInternal,
+    required this.propertyCommunity,
+    required this.propertyOthers,
+    required this.creator,
+    required this.owner
   });
-  factory DatosAutomaticosInmueble.vacio(){
-    return DatosAutomaticosInmueble(
-      inmueble: Inmueble.vacio(), 
-      inmuebleInternas: InmuebleInternas.vacio(), 
-      inmuebleComunidad: InmuebleComunidad.vacio(), 
-      inmueblesOtros: InmueblesOtros.vacio(), 
-      creador: Usuario.vacio(), 
-      propietario: Usuario.vacio()
+  factory AutoDataProperty.empty(){
+    return AutoDataProperty(
+      property: Property.empty(), 
+      propertyInternal: PropertyInternal.empty(), 
+      propertyCommunity: PropertyCommunity.empty(), 
+      propertyOthers: PropertyOthers.empty(), 
+      creator: User.empty(), 
+      owner: User.empty()
     );
   }
-  void generarDatosAleatorios(
-    TextEditingController? _controllerNombrePropietario,
-    TextEditingController? _controllerNombreZona,
-    TextEditingController? _controllerDireccion,
-    TextEditingController? _controllerSuperficieTerreno,
-    TextEditingController? _controllerSuperficieConstruccion,
-    TextEditingController? _controllerPrecio,
-    TextEditingController? _controllerTiempoConstruccion,
-    TextEditingController? _controllerNumeroDuenios,
-    TextEditingController? _controllerNumeroPisos,
-    TextEditingController? _controllerNumeroDormitorios,
-    TextEditingController? _controllerNumeroBanios,
-    TextEditingController? _controllerNumeroGaraje,
-    TextEditingController? _controllerImagenes2D,
+  void generateRandomData(
+    TextEditingController? _controllerOwnerName,
+    TextEditingController? _controllerZoneName,
+    TextEditingController? _controllerAddress,
+    TextEditingController? _controllerLandSurface,
+    TextEditingController? _controllerConstructionSurface,
+    TextEditingController? _controllerPrice,
+    TextEditingController? _controllerConstructionAntiquity,
+    TextEditingController? _controllerOwnersNumber,
+    TextEditingController? _controllerFloorsNumber,
+    TextEditingController? _controllerBedroomsNumber,
+    TextEditingController? _controllerBathroomsNumber,
+    TextEditingController? _controllerGaragesNumber,
+    TextEditingController? _controllerImages2D,
     TextEditingController? _controllerVideo2D,
     TextEditingController? _controllerTourVirtual360,
     TextEditingController? _controllerVideoTour360,
-    InmuebleTotal inmuebleTotal,
+    PropertyTotal propertyTotal,
   ){
-    List<String> zona=["Zona 1","Zona 2","Zona 3","Zona 4","Zona 5","Zona 6","Zona 7","Zona 8","Zona ","Zona 10"];
-    List<String> tipoInmueble=["Casa","Departamento","Terreno"];
-    List<String> tipoContrato=["Venta","Alquiler","Anticrético"];
-    List<String> imagenes2D=["","www.linkimagenes"];
+    List<String> zones=["Zona 1","Zona 2","Zona 3","Zona 4","Zona 5","Zona 6","Zona 7","Zona 8","Zona ","Zona 10"];
+    List<String> propertyTypes=["Casa","Departamento","Terreno"];
+    List<String> contractTypes=["Venta","Alquiler","Anticrético"];
     List<String> video2D=["","www.linkvideo"];
     List<String> tourvirtual=["","www.linktourvirtual"];
     List<String> videoTour=["","www.linkvideotour"];
-    List<bool> valoresBooleanos=[true,false];
+    List<bool> valuesBooleans=[true,false];
     
 
 
   var rng = new Random();
   
-    
-    inmuebleTotal.getInmueble.setCiudad("Sucre");
-    int numeroAleatorio=rng.nextInt(zona.length);
-    inmuebleTotal.getInmueble.setNombreZona(zona[numeroAleatorio]);
-    numeroAleatorio=rng.nextInt(50);
-    inmuebleTotal.getInmueble.setDireccion("Dirección "+numeroAleatorio.toString());
-    numeroAleatorio=rng.nextInt(tipoInmueble.length);
-    inmuebleTotal.getInmueble.setTipoInmueble(tipoInmueble[numeroAleatorio]);
-    numeroAleatorio=rng.nextInt(tipoContrato.length);
-    inmuebleTotal.getInmueble.setTipoContrato(tipoContrato[numeroAleatorio]);
-    numeroAleatorio=20+rng.nextInt(400);
-    inmuebleTotal.getInmueble.setPrecio(inmuebleTotal.getInmueble.tipoContrato=="Alquiler"?numeroAleatorio*10:inmuebleTotal.getInmueble.tipoContrato=="Anticrético"?numeroAleatorio*100:numeroAleatorio*1000);
-    inmuebleTotal.getInmueble.setEstadoInmueble("");
-    inmuebleTotal.getInmueble.autorizacion="Pendiente";
-    numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-    inmuebleTotal.getInmueble.setPapelesOrden(valoresBooleanos[numeroAleatorio]);
-    numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-    inmuebleTotal.getInmueble.setConstruccionEstrenar(inmuebleTotal.getInmueble.tipoInmueble=="Terreno"?false:valoresBooleanos[numeroAleatorio]);
-    numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-    inmuebleTotal.getInmueble.setHabilitadoCredito(valoresBooleanos[numeroAleatorio]);
-    numeroAleatorio=5+rng.nextInt(40);
-    inmuebleTotal.getInmueble.setSuperficieTerreno(inmuebleTotal.getInmueble.tipoInmueble=="Departamento"?numeroAleatorio*2:numeroAleatorio*10);
-    numeroAleatorio=5+rng.nextInt(40);
-    inmuebleTotal.getInmueble.setSuperficieConstruccion(inmuebleTotal.getInmueble.tipoInmueble=="Departamento"?numeroAleatorio*2:inmuebleTotal.getInmueble.tipoInmueble=="Casa"?numeroAleatorio*10:0);
-    inmuebleTotal.getInmueble.setPreoyectoPreventa(inmuebleTotal.getInmueble.tipoInmueble=="Terreno"?true:false);
-    numeroAleatorio=0+rng.nextInt(20);
-    inmuebleTotal.getInmueble.setAntiguedadConstruccion(numeroAleatorio);
-    numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-    inmuebleTotal.getInmueble.setInmuebleCompartido(valoresBooleanos[numeroAleatorio]);
-    numeroAleatorio=2+rng.nextInt(10);
-    inmuebleTotal.getInmueble.setNumeroDuenios(inmuebleTotal.getInmueble.isInmuebleCompartido?numeroAleatorio:1);
-    numeroAleatorio=1+rng.nextInt(15);
-    inmuebleTotal.getInmuebleInternas.plantas=inmuebleTotal.getInmueble.tipoInmueble=="Terreno"?0:numeroAleatorio;
-    numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-    inmuebleTotal.getInmueble.setSinHipoteca(valoresBooleanos[numeroAleatorio]);
-    var longitud=-65.22562;
-    var latitud=-18.98654;
-    inmuebleTotal.getInmueble.coordenadas=[];
-    numeroAleatorio=1+rng.nextInt(11);
-    inmuebleTotal.getInmueble.coordenadas.add(((latitud-1/numeroAleatorio)*10000).floor()/10000);
-    numeroAleatorio=1+rng.nextInt(80);
-    inmuebleTotal.getInmueble.coordenadas.add(((longitud-1/numeroAleatorio)*10000).floor()/10000);
-    print(inmuebleTotal.getInmueble.coordenadas);
-    if(!(inmuebleTotal.getInmueble.tipoInmueble=="Casa"||inmuebleTotal.getInmueble.tipoInmueble=="Departamento")){
-      numeroAleatorio=1+rng.nextInt(15);
-      inmuebleTotal.getInmuebleInternas.setDormitorios(numeroAleatorio);
-      numeroAleatorio=1+rng.nextInt(15);
-      inmuebleTotal.getInmuebleInternas.setBanios(numeroAleatorio);
-      numeroAleatorio=1+rng.nextInt(15);
-      inmuebleTotal.getInmuebleInternas.setGaraje(numeroAleatorio);
-      numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-      numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-      inmuebleTotal.getInmuebleInternas.setLavanderia(valoresBooleanos[numeroAleatorio]);
-      numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-      inmuebleTotal.getInmuebleInternas.setCuartoLavado(valoresBooleanos[numeroAleatorio]);
-      numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-      inmuebleTotal.getInmuebleInternas.setChurrasquero(valoresBooleanos[numeroAleatorio]);
-      numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-      inmuebleTotal.getInmuebleInternas.setAzotea(valoresBooleanos[numeroAleatorio]);
-      numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-      inmuebleTotal.getInmuebleInternas.setCancha(valoresBooleanos[numeroAleatorio]);
-      numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-      inmuebleTotal.getInmuebleInternas.setPiscina(valoresBooleanos[numeroAleatorio]);
-      numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-      inmuebleTotal.getInmuebleInternas.setSauna(valoresBooleanos[numeroAleatorio]);
-      numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-      inmuebleTotal.getInmuebleInternas.setTienda(valoresBooleanos[numeroAleatorio]);
-      numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-      inmuebleTotal.getInmuebleInternas.setEstudio(valoresBooleanos[numeroAleatorio]);
-      numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-      inmuebleTotal.getInmuebleInternas.setJardin(valoresBooleanos[numeroAleatorio]);
-      numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-      inmuebleTotal.getInmuebleInternas.setBalcon(valoresBooleanos[numeroAleatorio]);
-      numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-      inmuebleTotal.getInmuebleInternas.setAscensor(valoresBooleanos[numeroAleatorio]);
-      numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-      inmuebleTotal.getInmuebleInternas.setSotano(valoresBooleanos[numeroAleatorio]);
-      numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-      inmuebleTotal.getInmuebleInternas.setDeposito(valoresBooleanos[numeroAleatorio]);
+    propertyTotal.property.city="Sucre";
+    int randomNumber=rng.nextInt(zones.length);
+    propertyTotal.property.zoneName=zones[randomNumber];
+    randomNumber=rng.nextInt(50);
+    propertyTotal.property.address="Dirección "+randomNumber.toString();
+    randomNumber=rng.nextInt(propertyTypes.length);
+    propertyTotal.property.propertyType=propertyTypes[randomNumber];
+    randomNumber=rng.nextInt(contractTypes.length);
+    propertyTotal.property.contractType=contractTypes[randomNumber];
+    randomNumber=20+rng.nextInt(400);
+    propertyTotal.property.price=propertyTotal.property.contractType=="Alquiler"?randomNumber*10:propertyTotal.property.contractType=="Anticrético"?randomNumber*100:randomNumber*1000;
+    propertyTotal.property.authorization="Pendiente";
+    randomNumber=rng.nextInt(valuesBooleans.length);
+    propertyTotal.property.orderPapers=valuesBooleans[randomNumber];
+    randomNumber=rng.nextInt(valuesBooleans.length);
+    propertyTotal.property.newConstruction=propertyTotal.property.propertyType=="Terreno"?false:valuesBooleans[randomNumber];
+    randomNumber=rng.nextInt(valuesBooleans.length);
+    propertyTotal.property.enabledCredit=valuesBooleans[randomNumber];
+    randomNumber=5+rng.nextInt(40);
+    propertyTotal.property.landSurface=propertyTotal.property.propertyType=="Departamento"?randomNumber*2:randomNumber*10;
+    randomNumber=5+rng.nextInt(40);
+    propertyTotal.property.constructionSurface=propertyTotal.property.propertyType=="Departamento"?randomNumber*2:propertyTotal.property.propertyType=="Casa"?randomNumber*10:0;
+    propertyTotal.property.preSaleProject=propertyTotal.property.propertyType=="Terreno"?true:false;
+    randomNumber=0+rng.nextInt(20);
+    propertyTotal.property.constructionAntiquity=randomNumber;
+    randomNumber=rng.nextInt(valuesBooleans.length);
+    propertyTotal.property.sharedProperty=valuesBooleans[randomNumber];
+    randomNumber=2+rng.nextInt(10);
+    propertyTotal.property.ownersNumber=propertyTotal.property.sharedProperty?randomNumber:1;
+    randomNumber=1+rng.nextInt(15);
+    propertyTotal.propertyInternal.floorsNumber=propertyTotal.property.propertyType=="Terreno"?0:randomNumber;
+    randomNumber=rng.nextInt(valuesBooleans.length);
+    propertyTotal.property.noMortgage=valuesBooleans[randomNumber];
+    var longitude=-65.22562;
+    var latitude=-18.98654;
+    propertyTotal.property.coordinates=[];
+    randomNumber=1+rng.nextInt(11);
+    propertyTotal.property.coordinates.add(((latitude-1/randomNumber)*10000).floor()/10000);
+    randomNumber=1+rng.nextInt(80);
+    propertyTotal.property.coordinates.add(((longitude-1/randomNumber)*10000).floor()/10000);
+    if(!(propertyTotal.property.propertyType=="Casa"||propertyTotal.property.propertyType=="Departamento")){
+      randomNumber=1+rng.nextInt(15);
+      propertyTotal.propertyInternal.bedroomsNumber=randomNumber;
+      randomNumber=1+rng.nextInt(15);
+      propertyTotal.propertyInternal.bathroomsNumber=randomNumber;
+      randomNumber=1+rng.nextInt(15);
+      propertyTotal.propertyInternal.garagesNumber=randomNumber;
+      randomNumber=rng.nextInt(valuesBooleans.length);
+      propertyTotal.propertyInternal.laundry=valuesBooleans[randomNumber];
+      randomNumber=rng.nextInt(valuesBooleans.length);
+      propertyTotal.propertyInternal.laundryRoom=valuesBooleans[randomNumber];
+      randomNumber=rng.nextInt(valuesBooleans.length);
+      propertyTotal.propertyInternal.grill=valuesBooleans[randomNumber];
+      randomNumber=rng.nextInt(valuesBooleans.length);
+      propertyTotal.propertyInternal.rooftop=valuesBooleans[randomNumber];
+      randomNumber=rng.nextInt(valuesBooleans.length);
+      propertyTotal.propertyInternal.court=valuesBooleans[randomNumber];
+      randomNumber=rng.nextInt(valuesBooleans.length);
+      propertyTotal.propertyInternal.pool=valuesBooleans[randomNumber];
+      randomNumber=rng.nextInt(valuesBooleans.length);
+      propertyTotal.propertyInternal.sauna=valuesBooleans[randomNumber];
+      randomNumber=rng.nextInt(valuesBooleans.length);
+      propertyTotal.propertyInternal.store=valuesBooleans[randomNumber];
+      randomNumber=rng.nextInt(valuesBooleans.length);
+      propertyTotal.propertyInternal.studio=valuesBooleans[randomNumber];
+      randomNumber=rng.nextInt(valuesBooleans.length);
+      propertyTotal.propertyInternal.garden=valuesBooleans[randomNumber];
+      randomNumber=rng.nextInt(valuesBooleans.length);
+      propertyTotal.propertyInternal.balcony=valuesBooleans[randomNumber];
+      randomNumber=rng.nextInt(valuesBooleans.length);
+      propertyTotal.propertyInternal.elevator=valuesBooleans[randomNumber];
+      randomNumber=rng.nextInt(valuesBooleans.length);
+      propertyTotal.propertyInternal.basement=valuesBooleans[randomNumber];
+      randomNumber=rng.nextInt(valuesBooleans.length);
+      propertyTotal.propertyInternal.warehouse=valuesBooleans[randomNumber];
     }else{
-      inmuebleTotal.inmuebleInternas=InmuebleInternas.vacio();
+      propertyTotal.propertyInternal=PropertyInternal.empty();
     }
-    numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-    inmuebleTotal.getInmuebleComunidad.setIglesia(valoresBooleanos[numeroAleatorio]);
-    numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-    inmuebleTotal.getInmuebleComunidad.setParqueInfantil(valoresBooleanos[numeroAleatorio]);
-    numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-    inmuebleTotal.getInmuebleComunidad.setCentroDeportivo(valoresBooleanos[numeroAleatorio]);
-    numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-    inmuebleTotal.getInmuebleComunidad.setModuloPolicial(valoresBooleanos[numeroAleatorio]);
-    numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-    inmuebleTotal.getInmuebleComunidad.gymPublico=valoresBooleanos[numeroAleatorio];
-    numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-    inmuebleTotal.getInmuebleComunidad.escuela=valoresBooleanos[numeroAleatorio];
-    numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-    inmuebleTotal.getInmuebleComunidad.setZonaComercial(valoresBooleanos[numeroAleatorio]);
-    numeroAleatorio=rng.nextInt(valoresBooleanos.length);
-    inmuebleTotal.getInmuebleOtros.setRematesJudiciales(valoresBooleanos[numeroAleatorio]);
-    numeroAleatorio=rng.nextInt(imagenes2D.length);
-    inmuebleTotal.getInmuebleOtros.setImagenes2DLink(imagenes2D[numeroAleatorio]);
-    numeroAleatorio=rng.nextInt(video2D.length);
-    inmuebleTotal.getInmuebleOtros.setImagenes2DLink(video2D[numeroAleatorio]);
-    numeroAleatorio=rng.nextInt(tourvirtual.length);
-    inmuebleTotal.getInmuebleOtros.setImagenes2DLink(tourvirtual[numeroAleatorio]);
-    numeroAleatorio=rng.nextInt(videoTour.length);
-    inmuebleTotal.getInmuebleOtros.setImagenes2DLink(videoTour[numeroAleatorio]);
-    _controllerNombreZona!.text=inmuebleTotal.getInmueble.nombreZona;
-    _controllerDireccion!.text=inmuebleTotal.getInmueble.direccion;
-    _controllerPrecio!.text=inmuebleTotal.getInmueble.precio.toString();
-    _controllerSuperficieTerreno!.text=inmuebleTotal.getInmueble.superficieTerreno.toString();
-    _controllerSuperficieConstruccion!.text=inmuebleTotal.getInmueble.superficieConstruccion.toString();
-    _controllerTiempoConstruccion!.text=inmuebleTotal.getInmueble.antiguedadConstruccion.toString();
-    _controllerNumeroDuenios!.text=inmuebleTotal.getInmueble.numeroDuenios.toString();
-    _controllerNumeroPisos!.text=inmuebleTotal.getInmuebleInternas.plantas.toString();
-    _controllerNumeroDormitorios!.text=inmuebleTotal.getInmuebleInternas.dormitorios.toString();
-    _controllerNumeroBanios!.text=inmuebleTotal.getInmuebleInternas.banios.toString();
-    _controllerNumeroGaraje!.text=inmuebleTotal.getInmuebleInternas.garaje.toString();
-    _controllerImagenes2D!.text=inmuebleTotal.getInmuebleOtros.imagenes2DLink;
-    _controllerVideo2D!.text=inmuebleTotal.getInmuebleOtros.video2DLink;
-    _controllerTourVirtual360!.text=inmuebleTotal.getInmuebleOtros.tourVirtual360Link;
-    _controllerVideoTour360!.text=inmuebleTotal.getInmuebleOtros.videoTour360Link;
+    randomNumber=rng.nextInt(valuesBooleans.length);
+    propertyTotal.propertyCommunity.church=valuesBooleans[randomNumber];
+    randomNumber=rng.nextInt(valuesBooleans.length);
+    propertyTotal.propertyCommunity.playground=valuesBooleans[randomNumber];
+    randomNumber=rng.nextInt(valuesBooleans.length);
+    propertyTotal.propertyCommunity.sportCenter=valuesBooleans[randomNumber];
+    randomNumber=rng.nextInt(valuesBooleans.length);
+    propertyTotal.propertyCommunity.policeModule=valuesBooleans[randomNumber];
+    randomNumber=rng.nextInt(valuesBooleans.length);
+    propertyTotal.propertyCommunity.publicSaunaPool=valuesBooleans[randomNumber];
+    randomNumber=rng.nextInt(valuesBooleans.length);
+    propertyTotal.propertyCommunity.publicGym=valuesBooleans[randomNumber];
+    randomNumber=rng.nextInt(valuesBooleans.length);
+    propertyTotal.propertyCommunity.school=valuesBooleans[randomNumber];
+    randomNumber=rng.nextInt(valuesBooleans.length);
+    propertyTotal.propertyCommunity.shoopingZone=valuesBooleans[randomNumber];
+    randomNumber=rng.nextInt(valuesBooleans.length);
+    propertyTotal.propertyOthers.judicialAuctions=valuesBooleans[randomNumber];
+    randomNumber=rng.nextInt(video2D.length);
+    propertyTotal.propertyOthers.video2DLink=video2D[randomNumber];
+    randomNumber=rng.nextInt(tourvirtual.length);
+    propertyTotal.propertyOthers.tourVirtual360Link=tourvirtual[randomNumber];
+    randomNumber=rng.nextInt(videoTour.length);
+    propertyTotal.propertyOthers.videoTour360Link=videoTour[randomNumber];
+    _controllerZoneName!.text=propertyTotal.property.zoneName;
+    _controllerAddress!.text=propertyTotal.property.address;
+    _controllerPrice!.text=propertyTotal.property.price.toString();
+    _controllerLandSurface!.text=propertyTotal.property.landSurface.toString();
+    _controllerConstructionSurface!.text=propertyTotal.property.constructionSurface.toString();
+    _controllerConstructionAntiquity!.text=propertyTotal.property.constructionAntiquity.toString();
+    _controllerOwnersNumber!.text=propertyTotal.property.ownersNumber.toString();
+    _controllerFloorsNumber!.text=propertyTotal.propertyInternal.floorsNumber.toString();
+    _controllerBedroomsNumber!.text=propertyTotal.propertyInternal.bathroomsNumber.toString();
+    _controllerBathroomsNumber!.text=propertyTotal.propertyInternal.bathroomsNumber.toString();
+    _controllerGaragesNumber!.text=propertyTotal.propertyInternal.garagesNumber.toString();
+    _controllerVideo2D!.text=propertyTotal.propertyOthers.video2DLink;
+    _controllerTourVirtual360!.text=propertyTotal.propertyOthers.tourVirtual360Link;
+    _controllerVideoTour360!.text=propertyTotal.propertyOthers.videoTour360Link;
   }
 }

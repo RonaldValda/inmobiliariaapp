@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:inmobiliariaapp/domain/entities/administrador_zona.dart';
-import 'package:inmobiliariaapp/domain/entities/generales.dart';
-import 'package:inmobiliariaapp/domain/entities/usuario.dart';
-import 'package:inmobiliariaapp/domain/usecases/usuario/usecase_administrador.dart';
-import 'package:inmobiliariaapp/domain/usecases/usuario/usecase_super_usuario.dart';
-import 'package:inmobiliariaapp/domain/usecases/usuario/usecase_usuario.dart';
-import 'package:inmobiliariaapp/ui/provider/datos_generales_info.dart';
-import 'package:inmobiliariaapp/widgets/textField_modelos.dart';
+import 'package:inmobiliariaapp/domain/entities/administrator_zone.dart';
+import 'package:inmobiliariaapp/domain/entities/generals.dart';
+import 'package:inmobiliariaapp/domain/entities/user.dart';
+import 'package:inmobiliariaapp/domain/usecases/user/usecase_administrator.dart';
+import 'package:inmobiliariaapp/domain/usecases/user/usecase_super_user.dart';
+import 'package:inmobiliariaapp/domain/usecases/user/usecase_user.dart';
+import 'package:inmobiliariaapp/ui/provider/generals/general_data_provider.dart';
+import 'package:inmobiliariaapp/widgets/f_text_fields.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart' as iconc;
 import 'package:provider/provider.dart';
 class PageRegistroAdministradores extends StatefulWidget {
@@ -17,18 +17,18 @@ class PageRegistroAdministradores extends StatefulWidget {
 }
 
 class _PageRegistroAdministradoresState extends State<PageRegistroAdministradores> {
-  List<Usuario> administradores=[];
+  List<User> administradores=[];
   int selected=-1;
   TextEditingController? controllerEmail;
-  Usuario usuario=Usuario.vacio();
+  User usuario=User.empty();
   String textoDatos="";
-  UseCaseSuperUsuario useCaseSuperUsuario=UseCaseSuperUsuario();
-  UseCaseUsuario useCaseUsuario=UseCaseUsuario();
+  UseCaseSuperUser useCaseSuperUsuario=UseCaseSuperUser();
+  UseCaseUser useCaseUsuario=UseCaseUser();
   @override
   void initState() {
     super.initState();
     controllerEmail=TextEditingController(text: "");
-    useCaseSuperUsuario.obtenerAdministradores().then((value){
+    useCaseSuperUsuario.getAdministrators().then((value){
       if(value["completed"]){
         administradores=value["administradores"];
         setState(() {
@@ -50,13 +50,13 @@ class _PageRegistroAdministradoresState extends State<PageRegistroAdministradore
               child: ListView.builder(
                 itemCount: administradores.length,
                 itemBuilder: (context, index) {
-                  Usuario administrador=administradores[index];
+                  User administrador=administradores[index];
                   return ListTile(
                     selectedTileColor: Colors.blue.withOpacity(0.05),
                     selected: selected==index,
                     tileColor: (index+1)%2==0?Colors.black.withOpacity(0.05):Colors.white,
-                    title: Text("${administrador.nombres} ${administrador.apellidos}"),
-                    subtitle: Text("${administrador.correo}"),
+                    title: Text("${administrador.names} ${administrador.surnames}"),
+                    subtitle: Text("${administrador.email}"),
                     trailing: Container(
                       height: 50,
                       width: 100,
@@ -79,7 +79,7 @@ class _PageRegistroAdministradoresState extends State<PageRegistroAdministradore
                           IconButton(
                             tooltip: "Inhabilitar",
                             onPressed: (){
-                              useCaseSuperUsuario.inhabilitarAdministradores(administrador.id).then((value) {
+                              useCaseSuperUsuario.disableAdministrator(administrador.id).then((value) {
                                 if(value){
                                   selected=-1;
                                   administradores.removeAt(index);
@@ -121,7 +121,7 @@ class _PageRegistroAdministradoresState extends State<PageRegistroAdministradore
                   Row(
                     children: [
                       Expanded(
-                        child: TextFFBasico(
+                        child: FTextFieldBasico(
                           controller: controllerEmail!, 
                           labelText: "Email", 
                           onChanged: (x){}
@@ -129,10 +129,10 @@ class _PageRegistroAdministradoresState extends State<PageRegistroAdministradore
                       ),
                       IconButton(
                         onPressed: (){
-                          useCaseUsuario.buscarUsuarioEmail(controllerEmail!.text).then((value){
+                          useCaseUsuario.searchUserEmail(controllerEmail!.text).then((value){
                             if(value["completed"]){
                               usuario=value["usuario"];
-                              textoDatos="Usuario: ${usuario.nombres} ${usuario.apellidos}";
+                              textoDatos="Usuario: ${usuario.names} ${usuario.surnames}";
                               setState(() {
                                 
                               });
@@ -156,9 +156,9 @@ class _PageRegistroAdministradoresState extends State<PageRegistroAdministradore
                   ),
                   ElevatedButton(
                     onPressed: (){
-                      useCaseSuperUsuario.habilitarAdministradores(usuario.id).then((value){
+                      useCaseSuperUsuario.enableAdministrator(usuario.id).then((value){
                         if(value){
-                          usuario.tipoUsuario="Administrador";
+                          usuario.userType="Administrador";
                           administradores.add(usuario);
                           setState(() {
                             
@@ -179,19 +179,19 @@ class _PageRegistroAdministradoresState extends State<PageRegistroAdministradore
 }
 class PageAsignarZonasAdministrador extends StatefulWidget {
   PageAsignarZonasAdministrador({Key? key,required this.administrador}) : super(key: key);
-  final Usuario administrador;
+  final User administrador;
   @override
   _PageAsignarZonasAdministradorState createState() => _PageAsignarZonasAdministradorState();
 }
 
 class _PageAsignarZonasAdministradorState extends State<PageAsignarZonasAdministrador> {
-  List<AdministradorZona> administradorZonas=[];
-  UseCaseSuperUsuario useCaseSuperUsuario=UseCaseSuperUsuario();
-  UseCaseAdministrador useCaseAdministrador=UseCaseAdministrador();
+  List<AdministratorZone> administradorZonas=[];
+  UseCaseSuperUser useCaseSuperUsuario=UseCaseSuperUser();
+  UseCaseAdministrator useCaseAdministrador=UseCaseAdministrator();
   @override
   void initState() {
     super.initState();
-    useCaseAdministrador.obtenerAdministradorZonas(widget.administrador.id).then((value) {
+    useCaseAdministrador.getAdministratorZones(widget.administrador.id).then((value) {
       if(value["completed"]){
         administradorZonas=value["administrador_zonas"];
         setState(() {
@@ -202,7 +202,7 @@ class _PageAsignarZonasAdministradorState extends State<PageAsignarZonasAdminist
   }
   @override
   Widget build(BuildContext context) {
-    final _datosGenerales=Provider.of<DatosGeneralesInfo>(context);
+    final _datosGenerales=Provider.of<GeneralDataProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("Asignar zonas administrador"),
@@ -216,17 +216,17 @@ class _PageAsignarZonasAdministradorState extends State<PageAsignarZonasAdminist
               child: ListView.builder(
                 itemCount: administradorZonas.length,
                 itemBuilder: (context, index) {
-                  AdministradorZona administradorZona=administradorZonas[index];
+                  AdministratorZone administradorZona=administradorZonas[index];
                   return ListTile(
                     tileColor: (index+1)%2==0?Colors.black.withOpacity(0.05):Colors.white,
-                    title: Text(administradorZona.zona.nombreZona),
+                    title: Text(administradorZona.zone.zoneName),
                     trailing: IconButton(
                       tooltip: "Quitar",
                       onPressed: (){
-                        useCaseSuperUsuario.quitarAdministradorZona(administradorZona.id).then((value){
+                        useCaseSuperUsuario.removeAdministratorZone(administradorZona.id).then((value){
                           if(value){
                             administradorZonas.removeAt(index);
-                            _datosGenerales.seleccionarZonasLibres(administradorZonas);
+                            _datosGenerales.selectZonesFrees(administradorZonas);
                             setState(() {
                               
                             });
@@ -248,21 +248,21 @@ class _PageAsignarZonasAdministradorState extends State<PageAsignarZonasAdminist
             Text("Zonas libres"),
             Expanded(
               child: ListView.builder(
-                itemCount: _datosGenerales.zonasLibres.length,
+                itemCount: _datosGenerales.zonesFree.length,
                 itemBuilder: (context, index) {
                   return ListTile(
                     tileColor: (index+1)%2==0?Colors.black.withOpacity(0.05):Colors.white,
-                    title: Text(_datosGenerales.zonasLibres[index].nombreZona),
+                    title: Text(_datosGenerales.zonesFree[index].zoneName),
                     trailing: IconButton(
                       tooltip: "Asignar",
                       onPressed: (){
-                        useCaseSuperUsuario.asignarAdministradorZona(widget.administrador.id, _datosGenerales.zonasLibres[index].id).then((value){
+                        useCaseSuperUsuario.assignAdministratorZone(widget.administrador.id, _datosGenerales.zonesFree[index].id).then((value){
                           if(value["completed"]){
-                            AdministradorZona administradorZona=AdministradorZona.vacio();
-                            administradorZona.zona=_datosGenerales.zonasLibres[index];
+                            AdministratorZone administradorZona=AdministratorZone.empty();
+                            administradorZona.zone=_datosGenerales.zonesFree[index];
                             administradorZona.id=value["id"];
                             administradorZonas.add(administradorZona);
-                            _datosGenerales.seleccionarZonasLibres(administradorZonas);
+                            _datosGenerales.selectZonesFrees(administradorZonas);
                             setState(() {
                               
                             });
@@ -293,7 +293,7 @@ class _PageAsignarZonasAdministradorState extends State<PageAsignarZonasAdminist
 }
 class DropDownCiudad extends StatefulWidget {
   DropDownCiudad({Key? key,required this.administradorZonas}) : super(key: key);
-  final List<AdministradorZona> administradorZonas;
+  final List<AdministratorZone> administradorZonas;
   @override
   _DropDownCiudadState createState() => _DropDownCiudadState();
 }
@@ -301,12 +301,12 @@ class DropDownCiudad extends StatefulWidget {
 class _DropDownCiudadState extends State<DropDownCiudad> {
   
   bool dropdownActivado=false;
-  Ciudad ciudad=Ciudad.vacio();
+  City ciudad=City.empty();
   @override
   Widget build(BuildContext context) {
-    final _datosGenerales=Provider.of<DatosGeneralesInfo>(context);
+    final _datosGenerales=Provider.of<GeneralDataProvider>(context);
     if(ciudad.id==""){
-      ciudad=_datosGenerales.ciudades[0];
+      ciudad=_datosGenerales.cities[0];
       //_datosGenerales.seleccionarZonasCiudad(ciudad.id);
       
     }else{
@@ -314,7 +314,7 @@ class _DropDownCiudadState extends State<DropDownCiudad> {
     }
     return  Container(
       color: Colors.transparent,
-      child: DropdownButton<Ciudad>(
+      child: DropdownButton<City>(
         icon: Icon(Icons.arrow_drop_down,color: Colors.black,),
         style: dropdownActivado?TextStyle(
           color:  Colors.black
@@ -330,21 +330,21 @@ class _DropDownCiudadState extends State<DropDownCiudad> {
         },
         dropdownColor: Colors.white.withOpacity(0.8),
         value: ciudad,
-        onChanged: (Ciudad? value){
-          _datosGenerales.seleccionarZonasCiudad(value!.id);
-          _datosGenerales.seleccionarZonasLibres(widget.administradorZonas);
+        onChanged: (City? value){
+          _datosGenerales.selectZonesCity(value!.id);
+          _datosGenerales.selectZonesFrees(widget.administradorZonas);
           setState(() {
             ciudad=value;
             //Wvalor=value!;
             dropdownActivado=false;
           });
         },
-        items:_datosGenerales.ciudades
-        .map<DropdownMenuItem<Ciudad>>((Ciudad value) {
-          return DropdownMenuItem<Ciudad>(
+        items:_datosGenerales.cities
+        .map<DropdownMenuItem<City>>((City value) {
+          return DropdownMenuItem<City>(
             value: value,
             child: Container(
-              child: Text(value.nombreCiudad),
+              child: Text(value.cityName),
             )
             
           );

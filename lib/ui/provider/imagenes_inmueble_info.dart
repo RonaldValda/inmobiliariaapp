@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-class ImagenesInmuebleInfo with ChangeNotifier{
+class ImagenesInmueblesInfo with ChangeNotifier{
   TabController? tabController;
   List<ImagenesTabCategoria> tabs=[];
   List<ImagenItem> items=[];
@@ -44,14 +44,15 @@ class ImagenesInmuebleInfo with ChangeNotifier{
     }
     scrollController.addListener(onScrollListener);
     
-    @override
-    void dispose(){
-      scrollControlllerCategoria.dispose();
-      scrollController.removeListener(onScrollListener);
-      scrollController.dispose();
-      tabController!.dispose();
-      super.dispose();
-    }
+    
+  }
+  @override
+  void dispose(){
+    scrollControlllerCategoria.dispose();
+    scrollController.removeListener(onScrollListener);
+    scrollController.dispose();
+    tabController!.dispose();
+    super.dispose();
   }
   void onScrollListener(){
     if(listen){

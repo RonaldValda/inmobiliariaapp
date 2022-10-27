@@ -1,12 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:inmobiliariaapp/domain/entities/usuario.dart';
-import 'package:inmobiliariaapp/domain/usecases/usuario/usecase_usuario.dart';
+import 'package:inmobiliariaapp/domain/entities/user.dart';
 import 'package:inmobiliariaapp/ui/pages/listado_agentes/widgets/dialog_vista_agente.dart';
 import 'package:inmobiliariaapp/ui/pages/membresia_pagos/page_membresia_pagos.dart';
 import 'package:inmobiliariaapp/widgets/estrellas_calificacion.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart' as iconc;
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+
+import '../../../domain/usecases/user/usecase_user.dart';
 class PageListadoAgentes extends StatefulWidget {
   PageListadoAgentes({Key? key,required this.ciudad}) : super(key: key);
   final String ciudad;
@@ -15,16 +16,16 @@ class PageListadoAgentes extends StatefulWidget {
 }
 
 class _PageListadoAgentesState extends State<PageListadoAgentes> {
-  List<Usuario> agentes=[];
-  List<Usuario> agentesTop=[];
+  List<User> agentes=[];
+  List<User> agentesTop=[];
   List<String> carateres=["A","B","C","D","E","F","G","H","I","J","K","L","M","N","Ñ","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
   List<ItemAgenteAlfabeto> itemsAlfabeto=[];
   int index=0;
-  UseCaseUsuario useCaseUsuario=UseCaseUsuario();
+  UseCaseUser useCaseUsuario=UseCaseUser();
   @override
   void initState() {
     super.initState();
-    useCaseUsuario.obtenerAgentesCiudad(widget.ciudad).then((value) {
+    useCaseUsuario.getAgentsCity(widget.ciudad).then((value) {
       if(value["completed"]){
         agentes=value["agentes"];
         itemsAlfabeto=listarAgentesAlfabeto();
@@ -84,32 +85,32 @@ class _PageListadoAgentesState extends State<PageListadoAgentes> {
             child: ListView.builder(
               itemCount: agentesTop.length,
               itemBuilder: (context, index) {
-                Usuario agente=agentesTop[index];
+                User agente=agentesTop[index];
                 return ListTile(
-                  leading: agente.linkFoto==""?
+                  leading: agente.photoLink==""?
                     CircleAvatar(
                       radius :25,
-                      backgroundColor: agente.getCorreo!=""?Colors.amber:Colors.indigo,
-                      child: Text(agente.nombres.toString().substring(0,1),style: TextStyle(fontSize: 20),),
+                      backgroundColor: agente.email!=""?Colors.amber:Colors.indigo,
+                      child: Text(agente.names.toString().substring(0,1),style: TextStyle(fontSize: 20),),
                     )
                     :
                     CircleAvatar(
                       radius :25,
                       backgroundImage: CachedNetworkImageProvider(
-                        agente.linkFoto,
+                        agente.photoLink,
                         scale: 30
                       ),
                   ),
                   tileColor: (index+1)%2==0?Colors.black.withOpacity(0.02):Colors.transparent,
-                  title: Text("${agente.apellidos} ${agente.nombres}"),
+                  title: Text("${agente.surnames} ${agente.names}"),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("${agente.nombreAgencia}"),
+                      Text("${agente.agencyName}"),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          EstrellasCalificacionPorcentaje(puntajeTotal: agente.getCalificacion),
+                          EstrellasCalificacionPorcentaje(puntajeTotal: agente.getQualification),
                         ],
                       )
                     ],
@@ -137,7 +138,7 @@ class _PageListadoAgentesState extends State<PageListadoAgentes> {
                             child: InkWell(
                               child: iconc.FaIcon(iconc.FontAwesomeIcons.phone),
                               onTap: ()async{
-                                String number =agente.numeroTelefono; //set the number here
+                                String number =agente.phoneNumber; //set the number here
                                 await FlutterPhoneDirectCaller.callNumber(number);
                               },
                             ),
@@ -210,27 +211,27 @@ class _PageListadoAgentesState extends State<PageListadoAgentes> {
                     if(item.activado)Column(
                       children: item.agentes.map((agente) {
                         return ListTile(
-                          leading: agente.linkFoto==""? 
+                          leading: agente.photoLink==""? 
                           CircleAvatar(
                               radius :25,
-                              backgroundColor: agente.getCorreo!=""?Colors.amber:Colors.indigo,
-                              child: Text(agente.nombres.toString().substring(0,1),style: TextStyle(fontSize: 20),),
+                              backgroundColor: agente.email!=""?Colors.amber:Colors.indigo,
+                              child: Text(agente.names.toString().substring(0,1),style: TextStyle(fontSize: 20),),
                             )
                             :
                             CircleAvatar(
                               radius :25,
                               backgroundImage: CachedNetworkImageProvider(
-                                agente.linkFoto,
+                                agente.photoLink,
                                 scale: 30
                               ),
                           ),
                           tileColor: (index+1)%2==0?Colors.black.withOpacity(0.02):Colors.transparent,
-                          title: Text("${agente.apellidos} ${agente.nombres}"),
+                          title: Text("${agente.surnames} ${agente.names}"),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("${agente.nombreAgencia}"),
-                              EstrellasCalificacionPorcentaje(puntajeTotal: agente.getCalificacion),
+                              Text("${agente.agencyName}"),
+                              EstrellasCalificacionPorcentaje(puntajeTotal: agente.getQualification),
                             ],
                           ),
                           trailing: Container(
@@ -256,7 +257,7 @@ class _PageListadoAgentesState extends State<PageListadoAgentes> {
                                     child: InkWell(
                                       child: iconc.FaIcon(iconc.FontAwesomeIcons.phone),
                                       onTap: ()async{
-                                        String number =agente.numeroTelefono; //set the number here
+                                        String number =agente.phoneNumber; //set the number here
                                         await FlutterPhoneDirectCaller.callNumber(number);
                                       },
                                     ),
@@ -292,27 +293,27 @@ class _PageListadoAgentesState extends State<PageListadoAgentes> {
   }
   List<ItemAgenteAlfabeto> listarAgentesAlfabeto(){
     List<ItemAgenteAlfabeto> agentesAlfabeto=[];
-    List<Usuario> agentesAux=[];
+    List<User> agentesAux=[];
     agentesAux.addAll(agentes);
     for(int i=0;i<carateres.length;i++){
       ItemAgenteAlfabeto item=ItemAgenteAlfabeto(caracter: carateres[i], agentes: [], cantidad: 0,activado: false);
-      item.agentes.addAll(agentesAux.where((element) => element.apellidos.substring(0,1).toUpperCase()==carateres[i].toUpperCase()));
+      item.agentes.addAll(agentesAux.where((element) => element.surnames.substring(0,1).toUpperCase()==carateres[i].toUpperCase()));
       item.cantidad=item.agentes.length;
-      agentesAux.removeWhere((element) => element.apellidos.substring(0,1).toUpperCase()==carateres[i].toUpperCase());
+      agentesAux.removeWhere((element) => element.surnames.substring(0,1).toUpperCase()==carateres[i].toUpperCase());
       if(item.cantidad>0){
-        item.agentes.sort((a,b)=>a.nombres.compareTo(b.nombres));
+        item.agentes.sort((a,b)=>a.names.compareTo(b.names));
         agentesAlfabeto.add(item);
       }
     }
     return agentesAlfabeto;
   }
-  List<Usuario> listarTop(){
-    List<Usuario> agentesAux=[];
+  List<User> listarTop(){
+    List<User> agentesAux=[];
     agentesAux.addAll(agentes);
-    agentesAux.sort((b,a)=>(a.cantidadInmueblesCalificados).compareTo(b.cantidadInmueblesCalificados));
-    int cantidadMaxima=agentesAux[0].cantidadInmueblesCalificados;
+    agentesAux.sort((b,a)=>(a.quantityQualifiedsProperties).compareTo(b.quantityQualifiedsProperties));
+    int cantidadMaxima=agentesAux[0].quantityQualifiedsProperties;
     print(cantidadMaxima);
-    agentesAux.sort((b,a)=>((0.7*a.cantidadInmueblesCalificados/cantidadMaxima)+0.3*a.getCalificacion).compareTo((0.7*b.cantidadInmueblesCalificados/cantidadMaxima)+0.3*b.getCalificacion));
+    agentesAux.sort((b,a)=>((0.7*a.quantityQualifiedsProperties/cantidadMaxima)+0.3*a.getQualification).compareTo((0.7*b.quantityQualifiedsProperties/cantidadMaxima)+0.3*b.getQualification));
     if(agentesAux.length<10){
       return agentesAux;
     }
@@ -324,7 +325,7 @@ class ItemAgenteAlfabeto{
   String caracter;
   int cantidad;
   bool activado;
-  List<Usuario> agentes;
+  List<User> agentes;
   ItemAgenteAlfabeto({
     required this.caracter,
     required this.agentes,

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:inmobiliariaapp/domain/entities/usuario.dart';
+import 'package:inmobiliariaapp/domain/entities/user.dart';
 import 'package:inmobiliariaapp/widgets/estrellas_calificacion.dart';
 
 Future dialogVistaAgente(
   BuildContext context,
-  Usuario agente
+  User agente
 )async{
  return await showDialog(
     barrierLabel: "",
@@ -27,18 +27,18 @@ Future dialogVistaAgente(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Nombres: ${agente.nombres}"),
-                          Text("Apellidos: ${agente.apellidos}"),
-                          Text("Email: ${agente.correo}"),
-                          Text("Teléfono: ${agente.numeroTelefono}"),
-                          Text("Agencia inmobiliaria: ${agente.nombreAgencia}"),
+                          Text("Nombres: ${agente.names}"),
+                          Text("Apellidos: ${agente.surnames}"),
+                          Text("Email: ${agente.email}"),
+                          Text("Teléfono: ${agente.phoneNumber}"),
+                          Text("Agencia inmobiliaria: ${agente.agencyName}"),
                           Text("Página web: ${agente.web}"),
-                          Text("Calificación: ${agente.getCalificacion}"),
+                          Text("Calificación: ${agente.getQualification}"),
                           Row(
                             children: [
-                              EstrellasCalificacionPorcentaje(puntajeTotal: agente.getCalificacion),
+                              EstrellasCalificacionPorcentaje(puntajeTotal: agente.getQualification),
                               SizedBox(width:15),
-                              Text("${agente.cantidadInmueblesCalificados} vendidos"),
+                              Text("${agente.quantityQualifiedsProperties} vendidos"),
                             ],
                           )
                         ],

@@ -1,12 +1,12 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:inmobiliariaapp/domain/entities/inmueble_total.dart';
-import 'package:inmobiliariaapp/domain/usecases/usuario/usecase_usuario.dart';
+import 'package:inmobiliariaapp/domain/entities/property_total.dart';
+import 'package:inmobiliariaapp/ui/pages/home/widgets/item_property/item_property.dart';
 import 'package:inmobiliariaapp/ui/pages/notificaciones_usuario/widgets/dialog_calificar_vendedor.dart';
-import 'package:inmobiliariaapp/ui/pages/principal/widgets/inmueble_item/inmueble_item.dart';
+import '../../../domain/usecases/user/usecase_user.dart';
 class PageSolicitudesUsuario extends StatefulWidget {
   PageSolicitudesUsuario({Key? key,required this.inmueblesTotal}) : super(key: key);
-  final List<InmuebleTotal> inmueblesTotal;
+  final List<PropertyTotal> inmueblesTotal;
   @override
   _PageSolicitudesUsuarioState createState() => _PageSolicitudesUsuarioState();
 }
@@ -28,15 +28,15 @@ class _PageSolicitudesUsuarioState extends State<PageSolicitudesUsuario> {
             itemCount: widget.inmueblesTotal.length,
             dragStartBehavior: DragStartBehavior.down,
             itemBuilder:(_,i){
-              var inmueble=widget.inmueblesTotal[i];
+              var propertyTotal=widget.inmueblesTotal[i];
               
-              if(widget.inmueblesTotal.elementAt(i).getSolicitudAdministrador.tipoSolicitud=="Calificar"){
+              if(widget.inmueblesTotal.elementAt(i).administratorRequest.requestType=="Calificar"){
                 return Container(
                   width: MediaQuery.of(context).size.width,
                   child: Column(
                     children: [
-                      CalificarVendedor(inmuebleTotal: inmueble,),
-                      InmuebleItem(inmuebleTotal:inmueble,index:i),
+                      CalificarVendedor(inmuebleTotal: propertyTotal,),
+                      ItemProperty(propertyTotal:propertyTotal,index:i),
                     ],
                   ),
                 );
@@ -44,7 +44,7 @@ class _PageSolicitudesUsuarioState extends State<PageSolicitudesUsuario> {
               return Container(
                 child: Column(
                   children: [
-                    InmuebleItem(inmuebleTotal: inmueble,index: i,),
+                    ItemProperty(propertyTotal: propertyTotal,index: i,),
                     SizedBox(height: 10,)
                   ],
                 ),
@@ -58,16 +58,16 @@ class _PageSolicitudesUsuarioState extends State<PageSolicitudesUsuario> {
 }
 class CalificarVendedor extends StatefulWidget {
   const CalificarVendedor({Key? key,required this.inmuebleTotal}) : super(key: key);
-  final InmuebleTotal inmuebleTotal;
+  final PropertyTotal inmuebleTotal;
   @override
   _CalificarVendedorState createState() => _CalificarVendedorState();
 }
 
 class _CalificarVendedorState extends State<CalificarVendedor> {
-  UseCaseUsuario useCaseUsuario=UseCaseUsuario();
+  UseCaseUser useCaseUsuario=UseCaseUser();
   @override
   Widget build(BuildContext context) {
-    return !widget.inmuebleTotal.getSolicitudAdministrador.solicitudTerminada? 
+    return !widget.inmuebleTotal.administratorRequest.requestFinished? 
       Container(
         //height: 60,
         //color: Colors.black26,
@@ -86,10 +86,10 @@ class _CalificarVendedorState extends State<CalificarVendedor> {
                 ElevatedButton(onPressed: ()async{
                   String respuesta=await dialogCalificarVendedor(context,widget.inmuebleTotal);
                   if(respuesta=="Aceptar"){
-                    useCaseUsuario.responderSolicitudUsuarioCalificacion(widget.inmuebleTotal.getSolicitudAdministrador.id, widget.inmuebleTotal.getInmueble.calificacion)
+                    useCaseUsuario.answerUserQualificationRequest(widget.inmuebleTotal.administratorRequest.id, widget.inmuebleTotal.property.qualification)
                     .then((resultado){
                       if(resultado["completado"]){
-                        widget.inmuebleTotal.getSolicitudAdministrador.solicitudTerminada=true;
+                        widget.inmuebleTotal.administratorRequest.requestFinished=true;
                         setState(() { 
                         
                         });

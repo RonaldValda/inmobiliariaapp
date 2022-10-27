@@ -1,8 +1,7 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:inmobiliariaapp/domain/usecases/usuario/usecase_super_usuario.dart';
+import 'package:inmobiliariaapp/domain/usecases/user/usecase_super_user.dart';
 class PageEstadisticasBuscados extends StatefulWidget {
   PageEstadisticasBuscados({Key? key,required this.ciudad}) : super(key: key);
   final String ciudad;
@@ -88,11 +87,11 @@ class _PageEstadisticasBuscadosState extends State<PageEstadisticasBuscados> {
   List<Map<String,dynamic>> mapsI=[];
   List<Map<String,dynamic>> mapsD=[];
    List<Color> colores=[Colors.indigo,Colors.red,Colors.orange,Colors.green,Colors.brown,Colors.blue];
-   UseCaseSuperUsuario useCaseSuperUsuario=UseCaseSuperUsuario();
+   UseCaseSuperUser useCaseSuperUser=UseCaseSuperUser();
   @override
   void initState() {
     super.initState();
-    useCaseSuperUsuario.obtenerUsuariosInmueblesBuscadosCiudad(widget.ciudad).then((value) {
+    useCaseSuperUser.getUsersPropertiesSearchedsCity(widget.ciudad).then((value) {
       if(value["completed"]){
         mapSuperficiesTerrero=value["map_superficies_terreno"];
         mapSuperficiesConstruccion=value["map_superficies_construccion"];
@@ -478,10 +477,10 @@ class _BarChartWidgetState extends State<BarChartWidget> {
               barTouchData: BarTouchData(enabled: false),
             
               titlesData: FlTitlesData(
-                topTitles: BarTitles.getTopBottomTitles(context, datos,true),
+                /*topTitles: BarTitles.getTopBottomTitles(context, datos,true),
                 bottomTitles: BarTitles.getTopBottomTitles(context, datos,false),
                 leftTitles: BarTitles.getSlideTitles(context, datos),
-                rightTitles: BarTitles.getSlideTitles(context, datos)
+                rightTitles: BarTitles.getSlideTitles(context, datos)*/
               ),
               barGroups: numeros.map((e){
                 i++;
@@ -491,9 +490,10 @@ class _BarChartWidgetState extends State<BarChartWidget> {
                   barRods:[
                     BarChartRodData(
         
-                      y: e.toDouble(),
+                      fromY: e.toDouble(),
+                      toY: e.toDouble(),
                       width: barWidth,
-                      colors: [widget.colores[i]],
+                      color: widget.colores[i],
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(6),
                         topRight: Radius.circular(6)
@@ -510,8 +510,9 @@ class _BarChartWidgetState extends State<BarChartWidget> {
   }
 }
 class BarTitles{
-  static SideTitles getTopBottomTitles(BuildContext context,List<String> datos,bool top)=>SideTitles(
+ /* static SideTitles getTopBottomTitles(BuildContext context,List<String> datos,bool top)=>SideTitles(
     showTitles: true,
+
     getTextStyles: (context,value)=> TextStyle(
       color: top?Colors.blue:Colors.transparent,fontSize: 10
     ),
@@ -525,5 +526,5 @@ class BarTitles{
     ),
     interval: 2,
     getTitles:(double id)=>id.toDouble().toString()
-  );
+  );*/
 }

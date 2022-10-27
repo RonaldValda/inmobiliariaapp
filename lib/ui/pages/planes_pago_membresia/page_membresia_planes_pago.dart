@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:inmobiliariaapp/domain/entities/membresia_planes_pago.dart';
-import 'package:inmobiliariaapp/domain/usecases/generales/usecase_membresia_planes_pago.dart';
-import 'package:inmobiliariaapp/domain/usecases/usuario/usecase_super_usuario.dart';
-import 'package:inmobiliariaapp/widgets/textField_modelos.dart';
+import 'package:inmobiliariaapp/domain/entities/membership_plan_payment.dart';
+import 'package:inmobiliariaapp/widgets/f_text_fields.dart';
 import 'package:inmobiliariaapp/widgets/utils.dart';
-enum unidad_medida_tiempo{
+
+import '../../../domain/usecases/general/usecase_membership_plan_payment.dart';
+enum GetUnitMeasureTime{
   dias,
   meses
 }
@@ -19,9 +19,9 @@ class _PageRegistroMembresiaPlanesPagoState extends State<PageRegistroMembresiaP
   TextEditingController? controllerCosto;
   TextEditingController? controllerNombrePlan;
   TextEditingController? controllerTiempo;
-  MembresiaPlanesPago membresia=MembresiaPlanesPago.vacio();
-  List<MembresiaPlanesPago> membresiasPlanesPago=[];
-  UseCaseMembresiaPlanesPago useCaseMembresiaPlanesPago=UseCaseMembresiaPlanesPago();
+  MembershipPlanPayment membresia=MembershipPlanPayment.empty();
+  List<MembershipPlanPayment> membresiasPlanesPago=[];
+  UseCaseMembershipPlanPayment useCaseMembresiaPlanesPago=UseCaseMembershipPlanPayment();
   int valorUnidad=0;
   int selected=-1;
   @override
@@ -30,7 +30,7 @@ class _PageRegistroMembresiaPlanesPagoState extends State<PageRegistroMembresiaP
     controllerCosto=TextEditingController(text: "0");
     controllerNombrePlan=TextEditingController(text: "");
     controllerTiempo=TextEditingController(text: "0");
-    useCaseMembresiaPlanesPago.obtenerMembresiaPlanesPago().then((value) {
+    useCaseMembresiaPlanesPago.getMembershipPlanPayment().then((value) {
       if(value["completado"]){
         membresiasPlanesPago.addAll(value["membresias_planes_pago"]);
         setState(() {
@@ -52,19 +52,19 @@ class _PageRegistroMembresiaPlanesPagoState extends State<PageRegistroMembresiaP
               child: ListView.builder(
                 itemCount: membresiasPlanesPago.length,
                 itemBuilder: (context, index) {
-                  MembresiaPlanesPago memb=membresiasPlanesPago[index];
+                  MembershipPlanPayment memb=membresiasPlanesPago[index];
                   return ListTile(
                     selected: selected==index,
                     selectedTileColor: Colors.blue.withOpacity(0.11),
                     tileColor: (index+1)%2==0?Colors.transparent:Colors.black.withOpacity(0.02),
                     leading: IconButton(
                       onPressed: (){
-                        membresiasPlanesPago[index].activo=!membresiasPlanesPago[index].activo;
-                        useCaseMembresiaPlanesPago.modificarMembresiaPlanesPago(membresiasPlanesPago[index]).then((resultado){
+                        membresiasPlanesPago[index].active=!membresiasPlanesPago[index].active;
+                        useCaseMembresiaPlanesPago.updateMembershipPlanPayment(membresiasPlanesPago[index]).then((resultado){
                           if(resultado["completado"]){
                             ScaffoldMessenger.of(context).showSnackBar(showSnackBar("Se guardaron los cambios"));
                           }else{
-                            membresiasPlanesPago[index].activo=!membresiasPlanesPago[index].activo;
+                            membresiasPlanesPago[index].active=!membresiasPlanesPago[index].active;
                              ScaffoldMessenger.of(context).showSnackBar(showSnackBar("Algo salió mal intentelo de nuevo"));
                           }
                         }).whenComplete(() {
@@ -73,21 +73,21 @@ class _PageRegistroMembresiaPlanesPagoState extends State<PageRegistroMembresiaP
                           });
                         });
                       }, 
-                      icon: memb.activo?
+                      icon: memb.active?
                         Icon(Icons.check,color: Colors.green,size: 30,)
                         :
                         Icon(Icons.close,color: Colors.red,size: 30,),
                     ),
-                    title: Text(memb.nombrePlan,
+                    title: Text(memb.planName,
                       style: TextStyle(
                         fontSize: 18
                       ),
                     ),
-                    subtitle: Text("${memb.tiempo} ${memb.unidadMedidaTiempo}"),
+                    subtitle: Text("${memb.time} ${memb.unitMeasureTime}"),
                     trailing: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("${memb.costo.toString()} Bs.",
+                        Text("${memb.cost.toString()} Bs.",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold
@@ -97,20 +97,20 @@ class _PageRegistroMembresiaPlanesPagoState extends State<PageRegistroMembresiaP
                       ],
                     ),
                     onTap: (){
-                      if(memb.unidadMedidaTiempo=="Meses"){
-                        valorUnidad=unidad_medida_tiempo.meses.index;
+                      if(memb.unitMeasureTime=="Meses"){
+                        valorUnidad=GetUnitMeasureTime.meses.index;
                       }else{
-                        valorUnidad=unidad_medida_tiempo.dias.index;
+                        valorUnidad=GetUnitMeasureTime.dias.index;
                       }
                       
                       if(selected!=index){
-                        membresia=MembresiaPlanesPago.copyWith(memb);
-                        controllerCosto!.text=memb.costo.toString();
-                        controllerNombrePlan!.text=memb.nombrePlan;
-                        controllerTiempo!.text=memb.tiempo.toString();
+                        membresia=MembershipPlanPayment.copyWith(memb);
+                        controllerCosto!.text=memb.cost.toString();
+                        controllerNombrePlan!.text=memb.planName;
+                        controllerTiempo!.text=memb.time.toString();
                         selected=index;
                       }else{
-                        membresia=MembresiaPlanesPago.vacio();
+                        membresia=MembershipPlanPayment.empty();
                         controllerCosto!.text="0";
                         controllerNombrePlan!.text="";
                         controllerTiempo!.text="1";
@@ -142,7 +142,7 @@ class _PageRegistroMembresiaPlanesPagoState extends State<PageRegistroMembresiaP
                         children: [
                           Text("Días"),
                           Radio(
-                            value: unidad_medida_tiempo.dias.index,
+                            value: GetUnitMeasureTime.dias.index,
                             groupValue: valorUnidad, 
                             onChanged: (i){
                               valorUnidad=int.parse(i.toString());
@@ -157,7 +157,7 @@ class _PageRegistroMembresiaPlanesPagoState extends State<PageRegistroMembresiaP
                         children: [
                           Text("Meses"),
                           Radio(
-                            value: unidad_medida_tiempo.meses.index, 
+                            value: GetUnitMeasureTime.meses.index, 
                             groupValue: valorUnidad, 
                             onChanged: (i){
                               valorUnidad=int.parse(i.toString());
@@ -170,38 +170,38 @@ class _PageRegistroMembresiaPlanesPagoState extends State<PageRegistroMembresiaP
                       ),
                     ],
                   ),
-                  TextFFBasico(
+                  FTextFieldBasico(
                     controller: controllerNombrePlan!, 
                     labelText: "Nombre del plan", 
                     onChanged: (x){
-                      membresia.nombrePlan=x;
+                      membresia.planName=x;
                     }
                   ),
                   SizedBox(height:5),
-                  TextFFBasico(
+                  FTextFieldBasico(
                     controller: controllerTiempo!, 
                     labelText: "Tiempo", 
                     onChanged: (x){
                       if(x!=""){
-                        membresia.tiempo=int.parse(x);
+                        membresia.time=int.parse(x);
                       }
                     }
                   ),
                   SizedBox(height:5),
-                  TextFFBasico(
+                  FTextFieldBasico(
                     controller: controllerCosto!, 
                     labelText: "Costo", 
                     onChanged: (x){
                       if(x!=""){
-                        membresia.costo=int.parse(x);
+                        membresia.cost=int.parse(x);
                       }
                     }
                   ),
                   ElevatedButton(
                     onPressed: (){
                       if(selected<0){
-                        membresia.activo=true;
-                        useCaseMembresiaPlanesPago.registrarMembresiaPlanesPago(membresia).then((value){
+                        membresia.active=true;
+                        useCaseMembresiaPlanesPago.registerMembershipPlanPayment(membresia).then((value){
                           if(value["completado"]){
                             membresiasPlanesPago.add(value["membresia_planes_pago"]);
                             ScaffoldMessenger.of(context).showSnackBar(showSnackBar("Registro completado"));
@@ -214,11 +214,11 @@ class _PageRegistroMembresiaPlanesPagoState extends State<PageRegistroMembresiaP
                           });
                         });
                       }else{
-                        useCaseMembresiaPlanesPago.modificarMembresiaPlanesPago(membresia).then((resultado){
+                        useCaseMembresiaPlanesPago.updateMembershipPlanPayment(membresia).then((resultado){
                           if(resultado["completado"]){
                             membresiasPlanesPago.removeWhere((element) => element.id==membresia.id);
                             membresiasPlanesPago.add(membresia);
-                            membresiasPlanesPago.sort((a,b)=>a.nombrePlan.compareTo(b.nombrePlan));
+                            membresiasPlanesPago.sort((a,b)=>a.planName.compareTo(b.planName));
                             ScaffoldMessenger.of(context).showSnackBar(showSnackBar("Se guardaron los cambios"));
                           }else{
                              ScaffoldMessenger.of(context).showSnackBar(showSnackBar("Algo salió mal intentelo de nuevo"));

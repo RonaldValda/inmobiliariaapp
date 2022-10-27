@@ -2,19 +2,20 @@
 
 import 'package:flutter/material.dart';
 import 'package:inmobiliariaapp/auxiliares/datos_auxiliares.dart';
-import 'package:inmobiliariaapp/domain/entities/inmueble_reportado.dart';
-import 'package:inmobiliariaapp/domain/entities/membresia_pago.dart';
-import 'package:inmobiliariaapp/domain/entities/usuario.dart';
-import 'package:inmobiliariaapp/domain/usecases/usuario/usecase_super_usuario.dart';
-import 'package:inmobiliariaapp/ui/pages/principal/widgets/inmueble_item/inmueble_item_imagenes.dart';
-import 'package:inmobiliariaapp/ui/provider/usuarios_info.dart';
-import 'package:inmobiliariaapp/widgets/textField_modelos.dart';
+import 'package:inmobiliariaapp/domain/entities/property_reported.dart';
+import 'package:inmobiliariaapp/domain/entities/membership_payment.dart';
+import 'package:inmobiliariaapp/domain/entities/user.dart';
+import 'package:inmobiliariaapp/ui/pages/home/widgets/item_property/item_property_images.dart';
+import 'package:inmobiliariaapp/ui/provider/user/user_provider.dart';
+import 'package:inmobiliariaapp/widgets/f_text_fields.dart';
 import 'package:inmobiliariaapp/widgets/utils.dart';
 import 'package:provider/provider.dart';
 
+import '../../../domain/usecases/user/usecase_super_user.dart';
+
 class PageNotificacionesSuperUsuario extends StatefulWidget {
   PageNotificacionesSuperUsuario({Key? key,required this.usuario,required this.tipoSesion}) : super(key: key);
-  final Usuario usuario;
+  final User usuario;
   final String tipoSesion;
   @override
   _PageNotificacionesSuperUsuarioState createState() => _PageNotificacionesSuperUsuarioState();
@@ -25,16 +26,16 @@ class _PageNotificacionesSuperUsuarioState extends State<PageNotificacionesSuper
   int notificacionesReportados=0;
   int notificacionesQuejas=0;
   int notificacionesPagos=0;
-  List<InmuebleReportado> inmueblesReportados=[];
-  List<InmuebleQueja> inmueblesQuejas=[];
-  List<MembresiaPago> membresiasPagos=[];
-  UseCaseSuperUsuario useCaseSuperUsuario=UseCaseSuperUsuario();
+  List<PropertyReported> inmueblesReportados=[];
+  List<PropertyComplaint> inmueblesQuejas=[];
+  List<MembershipPayment> membresiasPagos=[];
+  UseCaseSuperUser useCaseSuperUsuario=UseCaseSuperUser();
   int total=0;
   @override
   void initState() {
     super.initState();
     try{
-    useCaseSuperUsuario.obtenerNotificacionesSuperUsuario(widget.usuario,widget.tipoSesion)
+    useCaseSuperUsuario.getNotificationsSuperUser(widget.usuario,widget.tipoSesion)
     .then((value) {
       if(value["completed"]){
         inmueblesReportados=value["inmuebles_reportados"];
@@ -56,7 +57,7 @@ class _PageNotificacionesSuperUsuarioState extends State<PageNotificacionesSuper
   }
   @override
   Widget build(BuildContext context) {
-    final _usuario=Provider.of<UsuariosInfo>(context);
+    final _usuario=Provider.of<UserProvider>(context);
     
     return DefaultTabController(
       initialIndex: 0,
@@ -118,7 +119,7 @@ class _PageNotificacionesSuperUsuarioState extends State<PageNotificacionesSuper
       ),
     );
   }
-  Widget containerReportes(UsuariosInfo _usuario){
+  Widget containerReportes(UserProvider _usuario){
     return Container(
       child: Column(
         children: [
@@ -126,22 +127,22 @@ class _PageNotificacionesSuperUsuarioState extends State<PageNotificacionesSuper
             child: ListView.builder(
               itemCount: inmueblesReportados.length,
               itemBuilder: (context, index) {
-                InmuebleReportado inmuebleReportado=inmueblesReportados[index];
+                PropertyReported inmuebleReportado=inmueblesReportados[index];
                 return Card(
                   child: Column(
                     children: [
                       Container(
                         height: 20,
-                        child:Text(inmuebleReportado.respuesta!=""?inmuebleReportado.respuesta:"Pendiente",
+                        child:Text(inmuebleReportado.response!=""?inmuebleReportado.response:"Pendiente",
                             style: TextStyle(
-                              color: inmuebleReportado.respuesta==""?
+                              color: inmuebleReportado.response==""?
                         Colors.cyan:
-                        inmuebleReportado.respuesta=="Confirmado"?
+                        inmuebleReportado.response=="Confirmado"?
                         Colors.green:Colors.red,
                             ),
                         )
                       ),
-                      InmuebleItemImagenes(inmuebleTotal: inmuebleReportado.inmueble, index: index),
+                      ItemPropertyImages(propertyTotal: inmuebleReportado.propertyTotal, index: index),
                       Container(
                         padding: EdgeInsets.all(5),
                         child: Row(
@@ -155,42 +156,42 @@ class _PageNotificacionesSuperUsuarioState extends State<PageNotificacionesSuper
                                     fontWeight: FontWeight.bold
                                   ),
                                 ),
-                                Text(inmuebleReportado.fechaSolicitud),
+                                Text(inmuebleReportado.requestDate),
                                 Text("Faltas:",
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold
                                   ),
                                 ),
-                                inmuebleReportado.vendidoMultiplesLugares?
+                                inmuebleReportado.soldMultiplePlaces?
                                 Text("Vendido en más de un lugar"):Container(),
-                                inmuebleReportado.contenidoFalsoImagen?
+                                inmuebleReportado.fakeContentImage?
                                 Text("Contenido falso imágen"):Container(),
-                                inmuebleReportado.contenidoFalsoTexto?
+                                inmuebleReportado.fakeContentText?
                                 Text("Contenido falso texto"):Container(),
-                                inmuebleReportado.contenidoInapropiado?
+                                inmuebleReportado.inappropriateContent?
                                 Text("Contenido imapropiado"):Container(),
-                                inmuebleReportado.otro?
+                                inmuebleReportado.other?
                                 Text("Otro"):Container(),
                                 Text("Detalles del reporte:",
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold
                                   ),
                                 ),
-                                Text(inmuebleReportado.observacionesSolicitud),
+                                Text(inmuebleReportado.requestObservations),
                                 Text("Fecha respuesta:",
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold
                                   ),
                                 ),
-                                inmuebleReportado.respuesta!=""?
-                                Text(inmuebleReportado.fechaRespuesta):
+                                inmuebleReportado.response!=""?
+                                Text(inmuebleReportado.responseDate):
                                 Text(""),
                                 Text("Detalles de la respuesta:",
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold
                                   ),
                                 ),
-                                Text(inmuebleReportado.observacionesRespuesta),
+                                Text(inmuebleReportado.responseObservations),
                               ],
                             ),
                             OutlinedButton(
@@ -199,17 +200,17 @@ class _PageNotificacionesSuperUsuarioState extends State<PageNotificacionesSuper
                                 String respuesta="";
                                 // ignore: unused_local_variable
                                 String observacionesRespuesta;
-                                String respuestaInicial=inmuebleReportado.respuesta;
+                                String respuestaInicial=inmuebleReportado.response;
                                 try{
                                   respuesta=(await dialogResponderInmuebleReportado(context,inmuebleReportado));
-                                  inmuebleReportado.respuesta=respuesta;
-                                  bool resultado=await useCaseSuperUsuario.responderReporteInmueble(inmuebleReportado);
+                                  inmuebleReportado.response=respuesta;
+                                  bool resultado=await useCaseSuperUsuario.answerPropertyReport(inmuebleReportado);
                                   if(resultado){
                                     if(respuestaInicial==""){
                                       notificacionesReportados--;
                                       total--;
                                       if(total<=0){
-                                        _usuario.existeNotificacion=false;
+                                        _usuario.setExistsNotification(false);
                                       }
                                     }
                                     setState(() {
@@ -220,7 +221,7 @@ class _PageNotificacionesSuperUsuarioState extends State<PageNotificacionesSuper
                                   
                                 }
                               }, 
-                              child: Text(inmuebleReportado.respuesta==""?
+                              child: Text(inmuebleReportado.response==""?
                               "Responder":"Corregir")
                             )
                           ],
@@ -236,7 +237,7 @@ class _PageNotificacionesSuperUsuarioState extends State<PageNotificacionesSuper
       ),
     );
   }
-  Widget containerQuejas(UsuariosInfo _usuario){
+  Widget containerQuejas(UserProvider _usuario){
     return Container(
       child: Column(
         children: [
@@ -244,22 +245,22 @@ class _PageNotificacionesSuperUsuarioState extends State<PageNotificacionesSuper
             child: ListView.builder(
               itemCount:inmueblesQuejas.length,
               itemBuilder: (context, index) {
-                InmuebleQueja queja=inmueblesQuejas[index];
+                PropertyComplaint queja=inmueblesQuejas[index];
                 return Card(
                   child:Column(
                     children: [
                       Container(
                         height: 20,
-                        child:Text(queja.respuesta!=""?queja.respuesta:"Pendiente",
+                        child:Text(queja.response!=""?queja.response:"Pendiente",
                           style: TextStyle(
-                            color: queja.respuesta==""?   
+                            color: queja.response==""?   
                             Colors.cyan:
-                            queja.respuesta=="Confirmado"?
+                            queja.response=="Confirmado"?
                             Colors.green:Colors.red,
                           ),
                         )
                       ),
-                      InmuebleItemImagenes(inmuebleTotal: queja.inmueble, index: index),
+                      ItemPropertyImages(propertyTotal: queja.propertyTotal, index: index),
                       Container(
                         padding: EdgeInsets.all(5),
                         child: Row(
@@ -273,38 +274,38 @@ class _PageNotificacionesSuperUsuarioState extends State<PageNotificacionesSuper
                                     fontWeight: FontWeight.bold
                                   ),
                                ),
-                               Text(formatFechaUTC(DateTime.parse(queja.fechaSolicitud))),
+                               Text(formatFechaUTC(DateTime.parse(queja.requestDate))),
                                Text("Faltas:",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold
                                   ),
                                ),
-                               if(queja.sinRespuesta)
+                               if(queja.noResponse)
                                Text("Sin respuesta mucho tiempo"),
-                               if(queja.rechazadoSinJustificacion)
+                               if(queja.rejectedWithoutJustification)
                                Text("Rechazado sin justificación válida"),
-                               if(queja.otro)
+                               if(queja.other)
                                Text("Otros"),
                                Text("Detalles del reporte:",
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold
                                   ),
                                ),
-                               Text(queja.observacionesSolicitud),
+                               Text(queja.requestObservations),
                                 Text("Fecha respuesta:",
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold
                                   ),
                                 ),
-                                queja.respuesta!=""?
-                                Text(queja.fechaRespuesta):
+                                queja.response!=""?
+                                Text(queja.responseDate):
                                 Text(""),
                                 Text("Detalles de la respuesta:",
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold
                                   ),
                                 ),
-                                Text(queja.observacionesRespuesta),
+                                Text(queja.responseObservations),
                              ], 
                             ),
                             OutlinedButton(
@@ -314,29 +315,29 @@ class _PageNotificacionesSuperUsuarioState extends State<PageNotificacionesSuper
                                 // ignore: unused_local_variable
                                 String observacionesRespuesta;
                                 try{
-                                  String respuestaInicial=queja.respuesta;
+                                  String respuestaInicial=queja.response;
                                   respuesta=(await dialogResponderInmuebleQueja(context,queja));
-                                  queja.respuesta=respuesta;
-                                  bool resultado=await useCaseSuperUsuario.responderInmuebleQueja(queja, _usuario.usuario.id);
+                                  queja.response=respuesta;
+                                  bool resultado=await useCaseSuperUsuario.answerPropertyComplaint(queja, _usuario.user.id);
                                   if(resultado){
                                     if(respuestaInicial==""){
                                       notificacionesQuejas--;
                                       total--;
                                       if(total<=0){
-                                        _usuario.existeNotificacion=false;
+                                        _usuario.setExistsNotification(false);
                                       }
                                     }
                                     setState(() {
                                       
                                     });
                                   }else{
-                                    queja.respuesta=respuestaInicial;
+                                    queja.response=respuestaInicial;
                                   }
                                 }catch(e){
                                   print(e);
                                 }
                               }, 
-                              child: Text(queja.respuesta==""?
+                              child: Text(queja.response==""?
                               "Responder":"Corregir")
                             )
                           ]
@@ -352,7 +353,7 @@ class _PageNotificacionesSuperUsuarioState extends State<PageNotificacionesSuper
       )
     );
   }
-  Widget containerMembresiasPagos(UsuariosInfo _usuario){
+  Widget containerMembresiasPagos(UserProvider _usuario){
     return Container(
       child:Column(
         children: [
@@ -360,20 +361,20 @@ class _PageNotificacionesSuperUsuarioState extends State<PageNotificacionesSuper
             child: ListView.builder(
               itemCount: membresiasPagos.length,
               itemBuilder: (context, index) {
-                MembresiaPago membresia=membresiasPagos[index];
+                MembershipPayment membresia=membresiasPagos[index];
                 return Column(
                      children: [
                        ListTile(
                          leading: CircleAvatar(
-                           backgroundColor: membresia.autorizacionSuperUsuario=="Pendiente"?
-                                    Colors.orange:membresia.autorizacionSuperUsuario=="Rechazado"?Colors.redAccent:
+                           backgroundColor: membresia.authorizationSuperUser=="Pendiente"?
+                                    Colors.orange:membresia.authorizationSuperUser=="Rechazado"?Colors.redAccent:
                                     Colors.blueAccent,
                            foregroundColor: Colors.white,
-                           child: Text(membresia.autorizacionSuperUsuario.substring(0,1)),
+                           child: Text(membresia.authorizationSuperUser.substring(0,1)),
                          ),
-                         title: Text("Usuario: ${membresia.usuario.getNombres} ${membresia.usuario.apellidos}"),
-                         subtitle: Text("Fecha Solicitud: ${membresia.fechaSolicitudSuperUsuario}"),
-                         trailing: Text(membresia.membresiaPlanesPago.nombrePlan,
+                         title: Text("Usuario: ${membresia.user.names} ${membresia.user.surnames}"),
+                         subtitle: Text("Fecha Solicitud: ${membresia.requestDateSuperUser}"),
+                         trailing: Text(membresia.membershipPlanPayment.planName,
                           style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold
@@ -381,25 +382,25 @@ class _PageNotificacionesSuperUsuarioState extends State<PageNotificacionesSuper
                          ),
                          onTap: ()async{
                             try{
-                              String autorizacionInicial=membresia.autorizacionSuperUsuario;
+                              String autorizacionInicial=membresia.authorizationSuperUser;
                               String respuesta=await dialogResponderMembresiaPago(context, membresia);
                               
                               if(respuesta!=""){
-                                membresia.autorizacionSuperUsuario=respuesta;
-                                bool resultado=await useCaseSuperUsuario.responderMembresiaPagoSuperUsuario(membresia, _usuario.usuario.id);
+                                membresia.authorizationSuperUser=respuesta;
+                                bool resultado=await useCaseSuperUsuario.answerMembershipPaymentSuperUser(membresia, _usuario.user.id);
                                 if(resultado){
                                   if(autorizacionInicial==""){
                                     notificacionesPagos--;
                                     total--;
                                     if(total<=0){
-                                      _usuario.existeNotificacion=false;
+                                      _usuario.setExistsNotification(false);
                                     }
                                   }
                                   setState(() {
                                     
                                   });
                                 }else{
-                                  membresia.autorizacionSuperUsuario=autorizacionInicial;
+                                  membresia.authorizationSuperUser=autorizacionInicial;
                                 }
                               }
                             }catch(e){
@@ -421,7 +422,7 @@ class _PageNotificacionesSuperUsuarioState extends State<PageNotificacionesSuper
 
 Future<String> dialogResponderInmuebleReportado(
   BuildContext context,
-  InmuebleReportado inmuebleReportado
+  PropertyReported inmuebleReportado
 )async{
   String respuesta="";
   TextEditingController controller=TextEditingController(text: "");
@@ -444,7 +445,7 @@ Future<String> dialogResponderInmuebleReportado(
                 child: Column(
                   children:[
                     SizedBox(height:10),
-                    TextFFBasico(
+                    FTextFieldBasico(
                       controller: controller,
                       labelText: "Observaciones respuesta", 
                       onChanged: (x){
@@ -458,7 +459,7 @@ Future<String> dialogResponderInmuebleReportado(
                         OutlinedButton(
                           onPressed: (){
                             respuesta="Confirmado";
-                            inmuebleReportado.observacionesRespuesta=controller.text;
+                            inmuebleReportado.responseObservations=controller.text;
                             Navigator.pop(context,respuesta);
                           }, 
                           child: Text("Corfirmar")
@@ -485,7 +486,7 @@ Future<String> dialogResponderInmuebleReportado(
 }
 Future<String> dialogResponderInmuebleQueja(
   BuildContext context,
-  InmuebleQueja queja
+  PropertyComplaint queja
 )async{
   String respuesta="";
   TextEditingController controller=TextEditingController(text: "");
@@ -508,7 +509,7 @@ Future<String> dialogResponderInmuebleQueja(
                 child: Column(
                   children:[
                     SizedBox(height:10),
-                    TextFFBasico(
+                    FTextFieldBasico(
                       controller: controller,
                       labelText: "Observaciones respuesta", 
                       onChanged: (x){
@@ -522,7 +523,7 @@ Future<String> dialogResponderInmuebleQueja(
                         OutlinedButton(
                           onPressed: (){
                             respuesta="Confirmado";
-                            queja.observacionesRespuesta=controller.text;
+                            queja.responseObservations=controller.text;
                             Navigator.pop(context,respuesta);
                           }, 
                           child: Text("Corfirmar")
@@ -549,7 +550,7 @@ Future<String> dialogResponderInmuebleQueja(
 }
 Future<String> dialogResponderMembresiaPago(
   BuildContext context,
-  MembresiaPago membresiaPago
+  MembershipPayment membresiaPago
 )async{
   String respuesta="";
  return await showDialog(
@@ -605,7 +606,7 @@ Future<String> dialogResponderMembresiaPago(
 }
 class ContainerResponderMembresiasPagos extends StatefulWidget {
   ContainerResponderMembresiasPagos({Key? key,required this.membresiaPago}) : super(key: key);
-  final MembresiaPago membresiaPago;
+  final MembershipPayment membresiaPago;
   @override
   _ContainerResponderMembresiasPagosState createState() => _ContainerResponderMembresiasPagosState();
 }
@@ -640,10 +641,10 @@ class _ContainerResponderMembresiasPagosState extends State<ContainerResponderMe
                      child: Column(
                        crossAxisAlignment: CrossAxisAlignment.start,
                        children: [
-                        Text("Nombres: ${widget.membresiaPago.usuario.nombres}"),
-                        Text("Email: ${widget.membresiaPago.usuario.correo}"),
-                        Text("Agencia: ${widget.membresiaPago.usuario.nombreAgencia}"),
-                        Text("Web: ${widget.membresiaPago.usuario.web}"),
+                        Text("Nombres: ${widget.membresiaPago.user.names}"),
+                        Text("Email: ${widget.membresiaPago.user.email}"),
+                        Text("Agencia: ${widget.membresiaPago.user.agencyName}"),
+                        Text("Web: ${widget.membresiaPago.user.web}"),
                        ],
                      ),
                    ),
@@ -663,12 +664,12 @@ class _ContainerResponderMembresiasPagosState extends State<ContainerResponderMe
                      child: Column(
                        crossAxisAlignment: CrossAxisAlignment.start,
                        children: [
-                        Text("Plan: ${widget.membresiaPago.membresiaPlanesPago.nombrePlan}"),
-                        Text("Monto: ${widget.membresiaPago.montoPago}"),
-                        Text("Tipo transacción: ${widget.membresiaPago.medioPago}"),
-                        Text("Entidad financiera: ${widget.membresiaPago.cuentaBanco.nombreBanco}"),
-                        Text("Número de cuenta: ${widget.membresiaPago.cuentaBanco.numeroCuenta}"),
-                        Text("Titular de la cuenta: ${widget.membresiaPago.cuentaBanco.titular}"),
+                        Text("Plan: ${widget.membresiaPago.membershipPlanPayment.planName}"),
+                        Text("Monto: ${widget.membresiaPago.paymentAmount}"),
+                        Text("Tipo transacción: ${widget.membresiaPago.paymentMedium}"),
+                        Text("Entidad financiera: ${widget.membresiaPago.bankAccount.bankName}"),
+                        Text("Número de cuenta: ${widget.membresiaPago.bankAccount.accountNumber}"),
+                        Text("Titular de la cuenta: ${widget.membresiaPago.bankAccount.owner}"),
                         Text("Comprobante depósito",
                           style: TextStyle(
                             fontSize: 15,
@@ -681,7 +682,7 @@ class _ContainerResponderMembresiasPagosState extends State<ContainerResponderMe
                           width: MediaQuery.of(context).size.width/1.1,
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                              image: NetworkImage(widget.membresiaPago.linkImagenDeposito),
+                              image: NetworkImage(widget.membresiaPago.depositImageLink),
                               fit: BoxFit.cover
                             )
                           ),

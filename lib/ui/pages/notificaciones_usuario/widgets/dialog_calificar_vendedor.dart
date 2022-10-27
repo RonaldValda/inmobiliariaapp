@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:inmobiliariaapp/domain/entities/inmueble_total.dart';
+import 'package:inmobiliariaapp/domain/entities/property_total.dart';
 
 Future<String> dialogCalificarVendedor(
   BuildContext context,
-  InmuebleTotal inmuebleTotal
+  PropertyTotal inmuebleTotal
 )async{
   //TextEditingController _controller=TextEditingController();
  return await showDialog(
@@ -86,7 +86,7 @@ Future<String> dialogCalificarVendedor(
 }
 class CalificarEstrellas extends StatefulWidget {
   const CalificarEstrellas({Key? key,required this.inmuebleTotal}) : super(key: key);
-  final InmuebleTotal inmuebleTotal;
+  final PropertyTotal inmuebleTotal;
   @override
   _CalificarEstrellasState createState() => _CalificarEstrellasState();
 }
@@ -99,13 +99,13 @@ class _CalificarEstrellasState extends State<CalificarEstrellas> {
       child: Row(
         children: [
           IconButton(
-            icon: widget.inmuebleTotal.getInmueble.calificacion>=1 ?
+            icon: widget.inmuebleTotal.property.qualification>=1 ?
             Icon(Icons.star,size: 30,color: color,):Icon(Icons.star_border,size: 30,color: color,),
             onPressed: (){
-              if(widget.inmuebleTotal.getInmueble.calificacion==1){
-                widget.inmuebleTotal.getInmueble.setCalificacion(0);
+              if(widget.inmuebleTotal.property.qualification==1){
+                widget.inmuebleTotal.property.qualification=0;
               }else{
-                widget.inmuebleTotal.getInmueble.setCalificacion(1);
+                widget.inmuebleTotal.property.qualification=1;
               }
               setState(() {
                 
@@ -113,13 +113,13 @@ class _CalificarEstrellasState extends State<CalificarEstrellas> {
             },
           ),
           IconButton(
-            icon: widget.inmuebleTotal.getInmueble.calificacion>=2 ?
+            icon: widget.inmuebleTotal.property.qualification>=2 ?
             Icon(Icons.star,size: 30,color: color,):Icon(Icons.star_border,size: 30,color: color,),
             onPressed: (){
-              if(widget.inmuebleTotal.getInmueble.calificacion==2){
-                widget.inmuebleTotal.getInmueble.setCalificacion(0);
+              if(widget.inmuebleTotal.property.qualification==2){
+                widget.inmuebleTotal.property.qualification=0;
               }else{
-                widget.inmuebleTotal.getInmueble.setCalificacion(2);
+                widget.inmuebleTotal.property.qualification=2;
               }
               
               setState(() {
@@ -128,13 +128,13 @@ class _CalificarEstrellasState extends State<CalificarEstrellas> {
             },
           ),
           IconButton(
-            icon: widget.inmuebleTotal.getInmueble.calificacion>=3 ?
+            icon: widget.inmuebleTotal.property.qualification>=3 ?
             Icon(Icons.star,size: 30,color: color,):Icon(Icons.star_border,size: 30,color: color,),
             onPressed: (){
-              if(widget.inmuebleTotal.getInmueble.calificacion==3){
-                widget.inmuebleTotal.getInmueble.setCalificacion(0);
+              if(widget.inmuebleTotal.property.qualification==3){
+                widget.inmuebleTotal.property.qualification=0;
               }else{
-                widget.inmuebleTotal.getInmueble.setCalificacion(3);
+                widget.inmuebleTotal.property.qualification=3;
               }
               setState(() {
                 
@@ -142,13 +142,13 @@ class _CalificarEstrellasState extends State<CalificarEstrellas> {
             },
           ),
           IconButton(
-            icon: widget.inmuebleTotal.getInmueble.calificacion>=4 ?
+            icon: widget.inmuebleTotal.property.qualification>=4 ?
             Icon(Icons.star,size: 30,color: color,):Icon(Icons.star_border,size: 30,color: color,),
             onPressed: (){
-              if(widget.inmuebleTotal.getInmueble.calificacion==4){
-                widget.inmuebleTotal.getInmueble.setCalificacion(0);
+              if(widget.inmuebleTotal.property.qualification==4){
+                widget.inmuebleTotal.property.qualification=0;
               }else{
-                widget.inmuebleTotal.getInmueble.setCalificacion(4);
+                widget.inmuebleTotal.property.qualification=4;
               }
               setState(() {
                 
@@ -156,13 +156,13 @@ class _CalificarEstrellasState extends State<CalificarEstrellas> {
             },
           ),
           IconButton(
-            icon: widget.inmuebleTotal.getInmueble.calificacion==5 ?
+            icon: widget.inmuebleTotal.property.qualification==5 ?
             Icon(Icons.star,size: 30,color: color,):Icon(Icons.star_border,size: 30,color: color,),
             onPressed: (){
-              if(widget.inmuebleTotal.getInmueble.calificacion==5){
-                widget.inmuebleTotal.getInmueble.setCalificacion(0);
+              if(widget.inmuebleTotal.property.qualification==5){
+                widget.inmuebleTotal.property.qualification=0;
               }else{
-                widget.inmuebleTotal.getInmueble.setCalificacion(5);
+                widget.inmuebleTotal.property.qualification=5;
               }
               setState(() {
                 

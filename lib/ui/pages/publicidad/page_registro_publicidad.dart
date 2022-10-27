@@ -1,12 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:inmobiliariaapp/domain/entities/generales.dart';
-import 'package:inmobiliariaapp/domain/entities/publicidad.dart';
-import 'package:inmobiliariaapp/domain/usecases/generales/usecase_publicidad.dart';
-import 'package:inmobiliariaapp/ui/pages/registro_inmuebles/widgets/grilla_imagenes.dart';
-import 'package:inmobiliariaapp/ui/pages/registro_inmuebles/widgets/operaciones_imagenes.dart';
+import 'package:inmobiliariaapp/domain/entities/generals.dart';
+import 'package:inmobiliariaapp/domain/entities/publicity.dart';
 import 'package:inmobiliariaapp/ui/pages/publicidad/widgets/dropdown_selectores.dart';
-import 'package:inmobiliariaapp/widgets/textField_modelos.dart';
+import 'package:inmobiliariaapp/widgets/f_text_fields.dart';
+
+import '../../../data/services/images_repository.dart';
+import '../../../device/image_utils.dart';
+import '../../../domain/usecases/general/usecase_publicity.dart';
 class PageRegistroPublicidad extends StatefulWidget {
   PageRegistroPublicidad({Key? key}) : super(key: key);
 
@@ -15,24 +16,24 @@ class PageRegistroPublicidad extends StatefulWidget {
 }
 
 class _PageRegistroPublicidadState extends State<PageRegistroPublicidad> {
-  List<Publicidad> publicidades=[];
-  Publicidad publicidadSeleccionado=Publicidad.vacio();
+  List<Publicity> publicidades=[];
+  Publicity publicidadSeleccionado=Publicity.empty();
   TextEditingController? controllerDescripcion;
   TextEditingController? controllerWeb;
   TextEditingController? controllerMesesVigencia;
   bool isGallery=true;
   bool loadingImage=false;
   int mesesVigencia=0;
-  Ciudad ciudad=Ciudad.vacio();
-  List<Ciudad> ciudades=[];
-  UseCasePublicidad useCasePublicidad=UseCasePublicidad();
+  City ciudad=City.empty();
+  List<City> ciudades=[];
+  UseCasePublicity useCasePublicidad=UseCasePublicity();
   @override
   void initState() {
     super.initState();
     controllerDescripcion=TextEditingController(text: "");
     controllerWeb=TextEditingController(text: "");
     controllerMesesVigencia=TextEditingController(text: "0");
-    useCasePublicidad.obtenerPublicidades()
+    useCasePublicidad.getPublicities()
     .then((resultado){
       if(resultado["completado"]){
         publicidades=resultado["publicidades"];
@@ -72,7 +73,7 @@ class _PageRegistroPublicidadState extends State<PageRegistroPublicidad> {
                                   
                                   width: MediaQuery.of(context).size.width/2,
                                   height: MediaQuery.of(context).size.width/2,
-                                  imageUrl: publicidad.linkImagenPublicidad,
+                                  imageUrl: publicidad.publicityImageLink,
                                   
                                 ),
                               ),
@@ -83,15 +84,15 @@ class _PageRegistroPublicidadState extends State<PageRegistroPublicidad> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     
-                                    Text(publicidad.precioMax<0?
-                                    "Precio: Cualquiera":publicidad.precioMax==publicidad.precioMin?"250000 a más":"Precio: ${publicidad.precioMin} - ${publicidad.precioMax}"),
-                                    Text("Tipo inmueble: ${publicidad.tipoInmueble}"),
-                                    Text("Tipo contrato: ${publicidad.tipoContrato}"),
-                                    Text("Tipo publicidad: ${publicidad.tipoPublicidad}"),
-                                    Text("Descripción: ${publicidad.descripcionPublicidad}"),
-                                    Text("Link web: ${publicidad.linkWebPublicidad}"),
-                                    Text("Fecha creación: ${publicidad.fechaCreacion}"),
-                                    Text("Fecha vencimiento: ${publicidad.fechaVencimiento}"),
+                                    Text(publicidad.maxPrice<0?
+                                    "Precio: Cualquiera":publicidad.maxPrice==publicidad.minPrice?"250000 a más":"Precio: ${publicidad.minPrice} - ${publicidad.maxPrice}"),
+                                    Text("Tipo inmueble: ${publicidad.propertyType}"),
+                                    Text("Tipo contrato: ${publicidad.contractType}"),
+                                    Text("Tipo publicidad: ${publicidad.publicityType}"),
+                                    Text("Descripción: ${publicidad.publicityDescription}"),
+                                    Text("Link web: ${publicidad.publicityWebLink}"),
+                                    Text("Fecha creación: ${publicidad.creationDate}"),
+                                    Text("Fecha vencimiento: ${publicidad.expirationDate}"),
                                     Divider(),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.center,
@@ -99,15 +100,15 @@ class _PageRegistroPublicidadState extends State<PageRegistroPublicidad> {
                                         InkWell(
                                           onTap: (){
                                             if(publicidadSeleccionado.id==publicidad.id){
-                                              publicidadSeleccionado=Publicidad.vacio();
+                                              publicidadSeleccionado=Publicity.empty();
                                               controllerDescripcion!.text="";
                                               controllerWeb!.text="";
                                               controllerMesesVigencia!.text="0";
                                             }else{
-                                              publicidadSeleccionado=Publicidad.copyWith(publicidad);
-                                              controllerDescripcion!.text=publicidad.descripcionPublicidad;
-                                              controllerWeb!.text=publicidad.linkWebPublicidad;
-                                              controllerMesesVigencia!.text=(((DateTime.parse(publicidad.fechaVencimiento).difference(DateTime.parse(publicidad.fechaCreacion)).inDays)~/30).toInt()).toString();
+                                              publicidadSeleccionado=Publicity.copyWith(publicidad);
+                                              controllerDescripcion!.text=publicidad.publicityDescription;
+                                              controllerWeb!.text=publicidad.publicityWebLink;
+                                              controllerMesesVigencia!.text=(((DateTime.parse(publicidad.expirationDate).difference(DateTime.parse(publicidad.creationDate)).inDays)~/30).toInt()).toString();
                                             }
                                             setState(() {
                                               
@@ -121,11 +122,11 @@ class _PageRegistroPublicidadState extends State<PageRegistroPublicidad> {
                                         SizedBox(width: 20,),
                                         InkWell(
                                           onTap: (){
-                                            useCasePublicidad.eliminarPublicidad(publicidad.id)
+                                            useCasePublicidad.deletePublicity(publicidad.id)
                                             .then((resultado){
                                               if(resultado["completado"]){
                                                 publicidades.removeWhere((element) => element.id==publicidad.id);
-                                                publicidadSeleccionado=Publicidad.vacio();
+                                                publicidadSeleccionado=Publicity.empty();
                                                 controllerDescripcion!.text="";
                                                 controllerWeb!.text="";
                                                 controllerMesesVigencia!.text="0";
@@ -177,9 +178,9 @@ class _PageRegistroPublicidadState extends State<PageRegistroPublicidad> {
                             children: [
                               Text("Cuadrado"),
                               Checkbox(
-                                value: publicidadSeleccionado.tipoPublicidad=="Cuadrado", 
+                                value: publicidadSeleccionado.publicityType=="Cuadrado", 
                                 onChanged: (value){
-                                  publicidadSeleccionado.tipoPublicidad="Cuadrado";
+                                  publicidadSeleccionado.publicityType="Cuadrado";
                                   setState(() {
                                     
                                   });
@@ -191,9 +192,9 @@ class _PageRegistroPublicidadState extends State<PageRegistroPublicidad> {
                             children: [
                               Text("Rectángulo"),
                               Checkbox(
-                                value: publicidadSeleccionado.tipoPublicidad=="Rectángulo", 
+                                value: publicidadSeleccionado.publicityType=="Rectángulo", 
                                 onChanged: (value){
-                                  publicidadSeleccionado.tipoPublicidad="Rectángulo";
+                                  publicidadSeleccionado.publicityType="Rectángulo";
                                   setState(() {
                                     
                                   });
@@ -217,23 +218,23 @@ class _PageRegistroPublicidadState extends State<PageRegistroPublicidad> {
                         ],
                       ),
                       SizedBox(height: 4,),
-                      TextFFBasico(
+                      FTextFieldBasico(
                         controller: controllerDescripcion!, 
                         labelText: "Descripción publicidad", 
                         onChanged: (x){
-                          publicidadSeleccionado.descripcionPublicidad=x;
+                          publicidadSeleccionado.publicityDescription=x;
                         }
                       ),
                       SizedBox(height: 4,),
-                      TextFFBasico(
+                      FTextFieldBasico(
                         controller: controllerWeb!, 
                         labelText: "Link web", 
                         onChanged: (x){
-                          publicidadSeleccionado.linkWebPublicidad=x;
+                          publicidadSeleccionado.publicityWebLink=x;
                         }
                       ),
                       SizedBox(height: 4,),
-                      TextFFBasico(
+                      FTextFieldBasico(
                         controller: controllerMesesVigencia!, 
                         labelText: "Meses vigencia", 
                         onChanged: (x){
@@ -252,11 +253,11 @@ class _PageRegistroPublicidadState extends State<PageRegistroPublicidad> {
                             width: MediaQuery.of(context).size.width/1.9,
                             height: MediaQuery.of(context).size.width/1.9,
                             color: Colors.grey,
-                            child: publicidadSeleccionado.linkImagenPublicidad!=""?
+                            child: publicidadSeleccionado.publicityImageLink!=""?
                             CachedNetworkImage(
                               width: MediaQuery.of(context).size.width/1.9,
                               height: MediaQuery.of(context).size.width/1.9,
-                              imageUrl: publicidadSeleccionado.linkImagenPublicidad,
+                              imageUrl: publicidadSeleccionado.publicityImageLink,
                             ):Container(),
                           ),
                           loadingImage?Center(
@@ -296,7 +297,7 @@ class _PageRegistroPublicidadState extends State<PageRegistroPublicidad> {
             ElevatedButton(
               onPressed: (){
                 if(publicidadSeleccionado.id==""){
-                  useCasePublicidad.registrarPublicidad(publicidadSeleccionado, mesesVigencia)
+                  useCasePublicidad.registerPublicity(publicidadSeleccionado, mesesVigencia)
                   .then((resultado){
                     if(resultado["completado"]){
                       publicidades.add(resultado["publicidad"]);
@@ -306,7 +307,7 @@ class _PageRegistroPublicidadState extends State<PageRegistroPublicidad> {
                     }
                   });
                 }else{
-                  useCasePublicidad.modificarPublicidad(publicidadSeleccionado, mesesVigencia)
+                  useCasePublicidad.updatePublicity(publicidadSeleccionado, mesesVigencia)
                   .then((resultado){
                     if(resultado["completado"]){
                       publicidades.removeWhere((element) => element.id==publicidadSeleccionado.id);
@@ -327,11 +328,13 @@ class _PageRegistroPublicidadState extends State<PageRegistroPublicidad> {
       ),
     );
   }
-  void onPressedUploadImage(Publicidad publicidad) async{
-    final file=await ImageUtils.pickMedia(
+  void onPressedUploadImage(Publicity publicidad) async{
+    /*final file=await ImageUtils.pickMedia(
       isGallery: isGallery,
       cropImage: cropCustomImage,
-    );
+    );*/
+
+    final file=await ImageUtils.uploadImage();
     if(file==null) return;
 
     setState(() {
@@ -340,7 +343,7 @@ class _PageRegistroPublicidadState extends State<PageRegistroPublicidad> {
     });
     uploadImagen(file).then((value){
       //print(value);
-      publicidad.linkImagenPublicidad=value;
+      publicidad.publicityImageLink=value;
     }).onError((error, stackTrace) {
       loadingImage=false;
       setState(() {

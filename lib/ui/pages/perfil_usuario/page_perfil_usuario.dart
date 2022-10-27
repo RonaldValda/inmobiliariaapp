@@ -1,17 +1,18 @@
 
 import 'package:flutter/material.dart';
-import 'package:inmobiliariaapp/domain/entities/generales.dart';
-import 'package:inmobiliariaapp/domain/entities/inscripcion_agente.dart';
-import 'package:inmobiliariaapp/domain/entities/usuario.dart';
-import 'package:inmobiliariaapp/domain/usecases/usuario/usecase_usuario.dart';
-import 'package:inmobiliariaapp/ui/pages/registro_inmuebles/widgets/grilla_imagenes.dart';
-import 'package:inmobiliariaapp/ui/pages/registro_inmuebles/widgets/operaciones_imagenes.dart';
+import 'package:inmobiliariaapp/domain/entities/generals.dart';
+import 'package:inmobiliariaapp/domain/entities/agent_registration.dart';
+import 'package:inmobiliariaapp/domain/entities/user.dart';
 import 'package:inmobiliariaapp/ui/pages/membresia_pagos/page_membresia_pagos.dart';
 import 'package:inmobiliariaapp/widgets/estrellas_calificacion.dart';
-import 'package:inmobiliariaapp/ui/provider/datos_generales_info.dart';
-import 'package:inmobiliariaapp/ui/provider/usuarios_info.dart';
-import 'package:inmobiliariaapp/widgets/textField_modelos.dart';
+import 'package:inmobiliariaapp/ui/provider/generals/general_data_provider.dart';
+import 'package:inmobiliariaapp/ui/provider/user/user_provider.dart';
+import 'package:inmobiliariaapp/widgets/f_text_fields.dart';
 import 'package:provider/provider.dart';
+
+import '../../../data/services/images_repository.dart';
+import '../../../device/image_utils.dart';
+import '../../../domain/usecases/user/usecase_user.dart';
 class PagePerfilUsuario extends StatefulWidget {
   PagePerfilUsuario({Key? key}) : super(key: key);
 
@@ -26,8 +27,8 @@ class _PagePerfilUsuarioState extends State<PagePerfilUsuario> {
   }
   @override
   Widget build(BuildContext context) {
-    final _datosGenerales=Provider.of<DatosGeneralesInfo>(context);
-    final usuario=Provider.of<UsuariosInfo>(context);
+    final _datosGenerales=Provider.of<GeneralDataProvider>(context);
+    final usuario=Provider.of<UserProvider>(context);
     
     return Scaffold(
       appBar:AppBar(
@@ -48,47 +49,47 @@ class _PagePerfilUsuarioState extends State<PagePerfilUsuario> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Email: ${usuario.usuario.correo}"),
+                  Text("Email: ${usuario.user.email}"),
                   SizedBox(
                     height: 5,
                   ),
-                  Text("Nombres: ${usuario.usuario.nombres}"),
+                  Text("Nombres: ${usuario.user.names}"),
                   SizedBox(
                     height: 5,
                   ),
-                  Text("Apellidos: ${usuario.usuario.apellidos}"),
+                  Text("Apellidos: ${usuario.user.surnames}"),
                   SizedBox(
                     height: 5,
                   ),
-                  Text("Medio de registro: ${usuario.usuario.metodoAutenticacion}"),
+                  Text("Medio de registro: ${usuario.user.authMethod}"),
                   SizedBox(
                     height: 5,
                   ),
-                  Text("Tipo de usuario: ${usuario.usuario.tipoUsuario}"),
+                  Text("Tipo de usuario: ${usuario.user.userType}"),
                   SizedBox(
                     height: 5,
                   ),
                   
-                  Text("Agencia Inmobiliaria: ${usuario.usuario.nombreAgencia}"),
+                  Text("Agencia Inmobiliaria: ${usuario.user.agencyName}"),
                   SizedBox(
                     height: 5,
                   ),
-                  Text("Web: ${usuario.usuario.web}"),
+                  Text("Web: ${usuario.user.web}"),
                   SizedBox(
                     height: 5,
                   ),
-                  Text("Teléfono: ${usuario.usuario.numeroTelefono}"),
+                  Text("Teléfono: ${usuario.user.phoneNumber}"),
                   SizedBox(
                     height: 5,
                   ),
-                  Text("Verificación de cuenta: ${usuario.usuario.verificado?"Si":"No"}"),
+                  Text("Verificación de cuenta: ${usuario.user.verified?"Si":"No"}"),
                   SizedBox(
                     height: 5,
                   ),
                   Row(
                     children: [
                       Text("Calificación: "),
-                      EstrellasCalificacion(cantidadEstrellas: usuario.usuario.getCalificacion.ceil()),
+                      EstrellasCalificacion(cantidadEstrellas: usuario.user.qualification.ceil()),
                     ],
                   ),
                   SizedBox(
@@ -127,7 +128,7 @@ class _PagePerfilUsuarioState extends State<PagePerfilUsuario> {
                           }
                         )
                       );
-                      _datosGenerales.setCiudad(Ciudad.vacio());
+                      _datosGenerales.setCity(City.empty());
                     }, 
                     child: Text("Quiero ser agente inmobiliario",
                       style: TextStyle(
@@ -149,7 +150,7 @@ class _PagePerfilUsuarioState extends State<PagePerfilUsuario> {
                           }
                         )
                       );
-                      _datosGenerales.setCiudad(Ciudad.vacio());
+                      _datosGenerales.setCity(City.empty());
                     }, 
                     child: Text("Pago de membresías",
                       style: TextStyle(
@@ -186,8 +187,8 @@ class _PageModificarInformacionUsuarioState extends State<PageModificarInformaci
   bool isGallery=true;
   bool loadingImage=false;
   bool editarPassword=false;
-  late UsuariosInfo usuariosInfo;
-  UseCaseUsuario useCaseUsuario=UseCaseUsuario();
+  late UserProvider usuariosInfo;
+  UseCaseUser useCaseUsuario=UseCaseUser();
   @override
   void initState() {
     super.initState();
@@ -196,18 +197,18 @@ class _PageModificarInformacionUsuarioState extends State<PageModificarInformaci
     controllerTelefono=TextEditingController(text: "");
     controllerPassword=TextEditingController(text: "");
     controllerPasswordConfirmar=TextEditingController(text: "");
-    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
-      usuariosInfo = Provider.of<UsuariosInfo>(context, listen: false);
-      controllerNombres!.text=usuariosInfo.usuario.nombres;
-      controllerApellidos!.text=usuariosInfo.usuario.apellidos;
-      controllerTelefono!.text=usuariosInfo.usuario.numeroTelefono;
-      imagen=usuariosInfo.usuario.linkFoto;
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      usuariosInfo = Provider.of<UserProvider>(context, listen: false);
+      controllerNombres!.text=usuariosInfo.user.names;
+      controllerApellidos!.text=usuariosInfo.user.surnames;
+      controllerTelefono!.text=usuariosInfo.user.phoneNumber;
+      imagen=usuariosInfo.user.photoLink;
     });
     
   }
   @override
   Widget build(BuildContext context) {
-    final _usuario=Provider.of<UsuariosInfo>(context);
+    final _usuario=Provider.of<UserProvider>(context);
     
     return Scaffold(
       appBar: AppBar(
@@ -269,17 +270,17 @@ class _PageModificarInformacionUsuarioState extends State<PageModificarInformaci
                     ],
                   ),
                   SizedBox(height: 5,),
-                  TextFFBasico(
+                  FTextFieldBasico(
                     controller: controllerNombres!, 
                     labelText: "Nombres", onChanged: (x){}
                   ),
                   SizedBox(height: 5,),
-                  TextFFBasico(
+                  FTextFieldBasico(
                     controller: controllerApellidos!, 
                     labelText: "Apellidos", onChanged: (x){}
                   ),
                   SizedBox(height: 5,),
-                  TextFFBasico(
+                  FTextFieldBasico(
                     controller: controllerTelefono!, 
                     labelText: "Teléfono", onChanged: (x){}
                   ),
@@ -305,12 +306,12 @@ class _PageModificarInformacionUsuarioState extends State<PageModificarInformaci
                   Column(
                     children: [
                       SizedBox(height: 5,),
-                      TextFFBasico(
+                      FTextFieldBasico(
                         controller: controllerPassword!, 
                         labelText: "Nueva contraseña", onChanged: (x){}
                       ),
                       SizedBox(height: 5,),
-                      TextFFBasico(
+                      FTextFieldBasico(
                         controller: controllerPasswordConfirmar!, 
                         labelText: "Confirmar contraseña", onChanged: (x){}
                       ),
@@ -359,16 +360,16 @@ class _PageModificarInformacionUsuarioState extends State<PageModificarInformaci
                 ),
               ),
               onTap: (){
-                Usuario usuarioAux=Usuario.copyWith(_usuario.usuario);
-                usuarioAux.linkFoto=imagen;
-                usuarioAux.nombres=controllerNombres!.text;
-                usuarioAux.apellidos=controllerApellidos!.text;
-                usuarioAux.numeroTelefono=controllerTelefono!.text;
-                usuarioAux.contrasenia=controllerPassword!.text;
-                useCaseUsuario.modificarUsuario(usuarioAux)
+                User usuarioAux=User.copyWith(_usuario.user);
+                usuarioAux.photoLink=imagen;
+                usuarioAux.names=controllerNombres!.text;
+                usuarioAux.surnames=controllerApellidos!.text;
+                usuarioAux.phoneNumber=controllerTelefono!.text;
+                usuarioAux.password=controllerPassword!.text;
+                useCaseUsuario.updateUser(usuarioAux)
                 .then((completed){
                   if(completed){
-                    _usuario.setUsuario(usuarioAux);
+                    _usuario.setUser(usuarioAux);
                     Navigator.pop(context);
                   }
                 });
@@ -380,10 +381,11 @@ class _PageModificarInformacionUsuarioState extends State<PageModificarInformaci
     );
   }
   void onPressedUploadImage() async{
-    final file=await ImageUtils.pickMedia(
+    /*final file=await ImageUtils.pickMedia(
       isGallery: isGallery,
       cropImage: cropCustomImage,
-    );
+    );*/
+    final file=await ImageUtils.uploadImage();
     if(file==null) return;
 
     setState(() {
@@ -412,16 +414,16 @@ class PageRegistroAgente extends StatefulWidget {
 }
 
 class _PageRegistroAgenteState extends State<PageRegistroAgente> {
-  Ciudad ciudad=Ciudad.vacio();
+  City ciudad=City.empty();
   
-  List<Ciudad> ciudades=[];
+  List<City> ciudades=[];
   TextEditingController? controllerAgencia;
   TextEditingController? controllerWeb;
   TextEditingController? controllerTelefono;
   dynamic imagen="";
   bool isGallery=true;
   bool loadingImage=false;
-  UseCaseUsuario useCaseUsuario=UseCaseUsuario();
+  UseCaseUser useCaseUsuario=UseCaseUser();
   @override
   void initState() {
     super.initState();
@@ -432,17 +434,17 @@ class _PageRegistroAgenteState extends State<PageRegistroAgente> {
   }
   @override
   Widget build(BuildContext context) {
-    final _datosGenerales=Provider.of<DatosGeneralesInfo>(context);
-    final _usuario=Provider.of<UsuariosInfo>(context);
+    final _datosGenerales=Provider.of<GeneralDataProvider>(context);
+    final _usuario=Provider.of<UserProvider>(context);
     if(ciudad.id==""){
-      _datosGenerales.ciudades.forEach((element) { 
-        ciudades.add(Ciudad.copyWith(element));
+      _datosGenerales.cities.forEach((element) { 
+        ciudades.add(City.copyWith(element));
       });
     }else{
       //_datosGenerales.seleccionarZonasLibres(widget.administradorZonas);
     }
     if(controllerTelefono!.text==""){
-      controllerTelefono!.text=_usuario.usuario.numeroTelefono;
+      controllerTelefono!.text=_usuario.user.phoneNumber;
     }
     return Scaffold(
       appBar: AppBar(
@@ -465,19 +467,19 @@ class _PageRegistroAgenteState extends State<PageRegistroAgente> {
                     ],
                   ),
                   SizedBox(height: 5,),
-                  TextFFBasico(
+                  FTextFieldBasico(
                     controller: controllerAgencia!, 
                     labelText: "Agencia", 
                     onChanged: (x){}
                   ),
                   SizedBox(height: 5,),
-                  TextFFBasico(
+                  FTextFieldBasico(
                     controller: controllerWeb!, 
                     labelText: "Web", 
                     onChanged: (x){}
                   ),
                   SizedBox(height: 5,),
-                  TextFFBasico(
+                  FTextFieldBasico(
                     controller: controllerTelefono!, 
                     labelText: "Teléfono", 
                     onChanged: (x){
@@ -534,17 +536,17 @@ class _PageRegistroAgenteState extends State<PageRegistroAgente> {
             ),
             ElevatedButton(
               onPressed: (){
-                InscripcionAgente inscripcionAgente=InscripcionAgente.vacio();
-                inscripcionAgente.linkRespaldoSolicitud=imagen.toString();
-                inscripcionAgente.usuarioSolicitante=Usuario.copyWith(_usuario.usuario);
-                inscripcionAgente.usuarioSolicitante.web=controllerWeb!.text;
-                inscripcionAgente.usuarioSolicitante.nombreAgencia=controllerAgencia!.text;
-                inscripcionAgente.usuarioSolicitante.ciudad=_datosGenerales.ciudadSeleccionada.nombreCiudad;
+                AgentRegistration inscripcionAgente=AgentRegistration.empty();
+                inscripcionAgente.requestBackupLink=imagen.toString();
+                inscripcionAgente.userRequest=User.copyWith(_usuario.user);
+                inscripcionAgente.userRequest.web=controllerWeb!.text;
+                inscripcionAgente.userRequest.agencyName=controllerAgencia!.text;
+                inscripcionAgente.userRequest.city=_datosGenerales.citySelected.cityName;
                //print(inscripcionAgente.toMap());
-                useCaseUsuario.registrarSolicitudInscripcionAgente(inscripcionAgente).then((value) {
+                useCaseUsuario.registerAgentRegistrationRequest(inscripcionAgente).then((value) {
                   if(value["completed"]){
                     inscripcionAgente=value["inscripcion_agente"];
-                    _usuario.setUsuario(inscripcionAgente.usuarioSolicitante);
+                    _usuario.setUser(inscripcionAgente.userRequest);
                     Navigator.pop(context);
                   }
                 });
@@ -571,10 +573,11 @@ class _PageRegistroAgenteState extends State<PageRegistroAgente> {
     );
   }
   void onPressedUploadImage() async{
-    final file=await ImageUtils.pickMedia(
+    /*final file=await ImageUtils.pickMedia(
       isGallery: isGallery,
       cropImage: cropCustomImage,
-    );
+    );*/
+    final file=await ImageUtils.uploadImage();
     if(file==null) return;
 
     setState(() {
@@ -597,7 +600,7 @@ class _PageRegistroAgenteState extends State<PageRegistroAgente> {
 }
 class DropDownCiudad extends StatefulWidget {
   DropDownCiudad({Key? key,required this.ciudades}) : super(key: key);
-  final List<Ciudad> ciudades;
+  final List<City> ciudades;
   @override
   _DropDownCiudadState createState() => _DropDownCiudadState();
 }
@@ -607,13 +610,13 @@ class _DropDownCiudadState extends State<DropDownCiudad> {
   bool dropdownActivado=false;
   @override
   Widget build(BuildContext context) {
-    final _datosGenerales=Provider.of<DatosGeneralesInfo>(context);
-    if(_datosGenerales.ciudadSeleccionada.id==""){
-      _datosGenerales.ciudadSeleccionada=widget.ciudades[0];
+    final _datosGenerales=Provider.of<GeneralDataProvider>(context);
+    if(_datosGenerales.citySelected.id==""){
+      _datosGenerales.setCitySelected(widget.ciudades[0]);
     }
     return  Container(
       color: Colors.transparent,
-      child: DropdownButton<Ciudad>(
+      child: DropdownButton<City>(
         icon: Icon(Icons.arrow_drop_down,color: Colors.black,),
         style: dropdownActivado?TextStyle(
           color:  Colors.black
@@ -628,21 +631,21 @@ class _DropDownCiudadState extends State<DropDownCiudad> {
           
         },
         dropdownColor: Colors.white.withOpacity(0.8),
-        value: _datosGenerales.ciudadSeleccionada,
-        onChanged: (Ciudad? value){
+        value: _datosGenerales.citySelected,
+        onChanged: (City? value){
           setState(() {
-            _datosGenerales.setCiudad(value);
+            _datosGenerales.setCity(value);
             //widget.ciudad=Ciudad.copyWith(value!);
             //Wvalor=value!;
             dropdownActivado=false;
           });
         },
         items:widget.ciudades
-        .map<DropdownMenuItem<Ciudad>>((Ciudad value) {
-          return DropdownMenuItem<Ciudad>(
+        .map<DropdownMenuItem<City>>((City value) {
+          return DropdownMenuItem<City>(
             value: value,
             child: Container(
-              child: Text(value.nombreCiudad),
+              child: Text(value.cityName),
             )
             
           );

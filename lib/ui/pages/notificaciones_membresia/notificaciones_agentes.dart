@@ -1,36 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:inmobiliariaapp/data/repositories/usuario/administrador_repository_gql.dart';
-import 'package:inmobiliariaapp/domain/entities/inscripcion_agente.dart';
-import 'package:inmobiliariaapp/domain/entities/membresia_pago.dart';
-import 'package:inmobiliariaapp/domain/entities/usuario.dart';
+import 'package:inmobiliariaapp/data/repositories/user/administrator_repository_gql.dart';
+import 'package:inmobiliariaapp/domain/entities/agent_registration.dart';
+import 'package:inmobiliariaapp/domain/entities/membership_payment.dart';
+import 'package:inmobiliariaapp/domain/entities/user.dart';
 import 'package:graphql_flutter/graphql_flutter.dart' as graphql;
-import 'package:inmobiliariaapp/domain/usecases/usuario/usecase_administrador.dart';
-import 'package:inmobiliariaapp/ui/provider/usuarios_info.dart';
-import 'package:inmobiliariaapp/widgets/textField_modelos.dart';
+import 'package:inmobiliariaapp/domain/usecases/user/usecase_administrator.dart';
+import 'package:inmobiliariaapp/ui/provider/user/user_provider.dart';
+import 'package:inmobiliariaapp/widgets/f_text_fields.dart';
 import 'package:inmobiliariaapp/widgets/utils.dart';
 import 'package:provider/provider.dart';
 class NotificacionesMembresiaAdministrador extends StatefulWidget {
   NotificacionesMembresiaAdministrador({Key? key,required this.administrador}) : super(key: key);
-  final Usuario administrador;
+  final User administrador;
   @override
   _NotificacionesMembresiaAdministradorState createState() => _NotificacionesMembresiaAdministradorState();
 }
 
 class _NotificacionesMembresiaAdministradorState extends State<NotificacionesMembresiaAdministrador> {
-  List<MembresiaPago> membresiasPagos=[];
-  List<InscripcionAgente> inscripcionesAgentes=[];
-  UseCaseAdministrador useCaseAdministrador=UseCaseAdministrador();
+  List<MembershipPayment> membresiasPagos=[];
+  List<AgentRegistration> inscripcionesAgentes=[];
+  UseCaseAdministrator useCaseAdministrador=UseCaseAdministrator();
   @override
   void initState() {
     super.initState();
-    useCaseAdministrador.obtenerNotificacionesAdministrador(widget.administrador.id).then((value) {
+    useCaseAdministrador.getNotificationsAdministrator(widget.administrador.id).then((value) {
       if(value["completed"]){
-        membresiasPagos=value["membresias_pagos"];
-        inscripcionesAgentes=value["inscripciones_agentes"];
+        membresiasPagos=value["memberships_payments"];
+        inscripcionesAgentes=value["agents_registrations"];
         print(inscripcionesAgentes.length);
-        setState(() {
+        /*setState(() {
           
-        });
+        });*/
       }
     });
   }
@@ -43,8 +43,8 @@ class _NotificacionesMembresiaAdministradorState extends State<NotificacionesMem
 }
 class ListTileNotificacionesMembresiaAdministrador extends StatefulWidget {
   ListTileNotificacionesMembresiaAdministrador({Key? key,required this.membresiasPagos,required this.inscripcionesAgentes}) : super(key: key);
-  final List<MembresiaPago> membresiasPagos;
-  final List<InscripcionAgente> inscripcionesAgentes;
+  final List<MembershipPayment> membresiasPagos;
+  final List<AgentRegistration> inscripcionesAgentes;
   @override
   _ListTileNotificacionesMembresiaAdministradorState createState() => _ListTileNotificacionesMembresiaAdministradorState();
 }
@@ -107,8 +107,8 @@ class _ListTileNotificacionesMembresiaAdministradorState extends State<ListTileN
 }
 class PageNotificacionesAdministrador extends StatefulWidget {
   PageNotificacionesAdministrador({Key? key,required this.membresiasPagos,required this.inscripcionesAgentes}) : super(key: key);
-  final List<MembresiaPago> membresiasPagos;
-  final List<InscripcionAgente> inscripcionesAgentes;
+  final List<MembershipPayment> membresiasPagos;
+  final List<AgentRegistration> inscripcionesAgentes;
   @override
   _PageNotificacionesAdministradorState createState() => _PageNotificacionesAdministradorState();
 }
@@ -118,7 +118,7 @@ class _PageNotificacionesAdministradorState extends State<PageNotificacionesAdmi
   int notificacionesMembresias=0;
   int notificacionesInscripciones=0;
   int index=0;
-  UseCaseAdministrador useCaseAdministrador=UseCaseAdministrador();
+  UseCaseAdministrator useCaseAdministrador=UseCaseAdministrator();
   @override
   void initState() {
     super.initState();
@@ -127,7 +127,7 @@ class _PageNotificacionesAdministradorState extends State<PageNotificacionesAdmi
   }
   @override
   Widget build(BuildContext context) {
-    final _usuario=Provider.of<UsuariosInfo>(context);
+    final _usuario=Provider.of<UserProvider>(context);
     return DefaultTabController(
       initialIndex: 0,
       length: 2,
@@ -171,7 +171,7 @@ class _PageNotificacionesAdministradorState extends State<PageNotificacionesAdmi
             ]
           ),
         ),
-        body: index==0?containerPagoMembresias():containerInscripcionesAgentes(_usuario.usuario)
+        body: index==0?containerPagoMembresias():containerInscripcionesAgentes(_usuario.user)
       ),
     );
   }
@@ -187,15 +187,15 @@ class _PageNotificacionesAdministradorState extends State<PageNotificacionesAdmi
                   children: [
                     ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: widget.membresiasPagos[index].autorizacion=="Pendiente"?
-                                Colors.orange:widget.membresiasPagos[index].autorizacion=="Rechazado"?Colors.redAccent:
+                        backgroundColor: widget.membresiasPagos[index].authorization=="Pendiente"?
+                                Colors.orange:widget.membresiasPagos[index].authorization=="Rechazado"?Colors.redAccent:
                                 Colors.blueAccent,
                         foregroundColor: Colors.white,
-                        child: Text(widget.membresiasPagos[index].autorizacion.substring(0,1)),
+                        child: Text(widget.membresiasPagos[index].authorization.substring(0,1)),
                       ),
-                      title: Text("Usuario: ${widget.membresiasPagos[index].usuario.getNombres}"),
-                      subtitle: Text("Fecha Solicitud: ${widget.membresiasPagos[index].fechaSolicitud}"),
-                      trailing: Text(widget.membresiasPagos[index].membresiaPlanesPago.nombrePlan,
+                      title: Text("Usuario: ${widget.membresiasPagos[index].user.names}"),
+                      subtitle: Text("Fecha Solicitud: ${widget.membresiasPagos[index].requestDate}"),
+                      trailing: Text(widget.membresiasPagos[index].membershipPlanPayment.planName,
                       style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold
@@ -227,7 +227,7 @@ class _PageNotificacionesAdministradorState extends State<PageNotificacionesAdmi
       ),
     );
   }
-  Widget containerInscripcionesAgentes(Usuario administrador){
+  Widget containerInscripcionesAgentes(User administrador){
     return Container(
       child: Column(
         children: [
@@ -235,28 +235,28 @@ class _PageNotificacionesAdministradorState extends State<PageNotificacionesAdmi
             child: ListView.builder(
               itemCount: widget.inscripcionesAgentes.length,
               itemBuilder: (context, index) {
-                InscripcionAgente inscripcion=widget.inscripcionesAgentes[index];
+                AgentRegistration inscripcion=widget.inscripcionesAgentes[index];
                 return ListTile(
                   tileColor: (index+1)%2==0?Colors.black.withOpacity(0.05):Colors.transparent,
                   leading: CircleAvatar(
-                    backgroundColor: inscripcion.respuesta==""?
-                            Colors.orange:inscripcion.respuesta=="Rechazado"?Colors.redAccent:
+                    backgroundColor: inscripcion.response==""?
+                            Colors.orange:inscripcion.response=="Rechazado"?Colors.redAccent:
                             Colors.blueAccent,
                     foregroundColor: Colors.white,
-                    child:inscripcion.respuesta!=""?Text(inscripcion.respuesta.substring(0,1)):Text("P"),
+                    child:inscripcion.response!=""?Text(inscripcion.response.substring(0,1)):Text("P"),
                   ),
-                  title: Text("Agente: ${inscripcion.usuarioSolicitante.nombres} ${inscripcion.usuarioSolicitante.apellidos}"),
-                  subtitle: Text("Fecha Solicitud: ${inscripcion.fechaSolicitud}"),
+                  title: Text("Agente: ${inscripcion.userRequest.names} ${inscripcion.userRequest.surnames}"),
+                  subtitle: Text("Fecha Solicitud: ${inscripcion.requestDate}"),
 
                   //trailing: Text(widget.inscripcionesAgentes[index].membresiaPlanesPago.nombrePlan),
                   onTap: ()async{
                     try{
-                      InscripcionAgente inscripcionAux=InscripcionAgente.copyWith(inscripcion);
+                      AgentRegistration inscripcionAux=AgentRegistration.copyWith(inscripcion);
                       String respuesta=await dialogResponderInscripcionAgente(context, inscripcion);
                       if(respuesta=="Aprobado"){
-                        inscripcion.respuesta=respuesta;
-                        inscripcion.usuarioRespondedor.id=administrador.id;
-                        useCaseAdministrador.responderSolicitudInscripcionAgente(inscripcion).then((value) {
+                        inscripcion.response=respuesta;
+                        inscripcion.userResponding.id=administrador.id;
+                        useCaseAdministrador.answerAgentRegistrationRequest(inscripcion).then((value) {
                           if(value["completed"]){
                             inscripcion=value["inscripcion_agente"];
                             setState(() {
@@ -283,7 +283,7 @@ class _PageNotificacionesAdministradorState extends State<PageNotificacionesAdmi
 }
 class PageDatosMembresiaPagos extends StatefulWidget {
   PageDatosMembresiaPagos({Key? key,required this.membresiaPago}) : super(key: key);
-  final MembresiaPago membresiaPago;
+  final MembershipPayment membresiaPago;
   @override
   _PageDatosMembresiaPagosState createState() => _PageDatosMembresiaPagosState();
 }
@@ -321,10 +321,10 @@ class _PageDatosMembresiaPagosState extends State<PageDatosMembresiaPagos> {
                      child: Column(
                        crossAxisAlignment: CrossAxisAlignment.start,
                        children: [
-                        Text("Nombres: ${widget.membresiaPago.usuario.nombres}"),
-                        Text("Email: ${widget.membresiaPago.usuario.correo}"),
-                        Text("Agencia: ${widget.membresiaPago.usuario.nombreAgencia}"),
-                        Text("Web: ${widget.membresiaPago.usuario.web}"),
+                        Text("Nombres: ${widget.membresiaPago.user.names}"),
+                        Text("Email: ${widget.membresiaPago.user.email}"),
+                        Text("Agencia: ${widget.membresiaPago.user.agencyName}"),
+                        Text("Web: ${widget.membresiaPago.user.web}"),
                        ],
                      ),
                    ),
@@ -344,12 +344,12 @@ class _PageDatosMembresiaPagosState extends State<PageDatosMembresiaPagos> {
                      child: Column(
                        crossAxisAlignment: CrossAxisAlignment.start,
                        children: [
-                        Text("Plan: ${widget.membresiaPago.membresiaPlanesPago.nombrePlan}"),
-                        Text("Monto: ${widget.membresiaPago.montoPago}"),
-                        Text("Tipo transacción: ${widget.membresiaPago.medioPago}"),
-                        Text("Entidad financiera: ${widget.membresiaPago.cuentaBanco.nombreBanco}"),
-                        Text("Número de cuenta: ${widget.membresiaPago.cuentaBanco.numeroCuenta}"),
-                        Text("Titular de la cuenta: ${widget.membresiaPago.cuentaBanco.titular}"),
+                        Text("Plan: ${widget.membresiaPago.membershipPlanPayment.planName}"),
+                        Text("Monto: ${widget.membresiaPago.paymentAmount}"),
+                        Text("Tipo transacción: ${widget.membresiaPago.paymentMedium}"),
+                        Text("Entidad financiera: ${widget.membresiaPago.bankAccount.bankName}"),
+                        Text("Número de cuenta: ${widget.membresiaPago.bankAccount.accountNumber}"),
+                        Text("Titular de la cuenta: ${widget.membresiaPago.bankAccount.owner}"),
                         Text("Comprobante depósito",
                           style: TextStyle(
                             fontSize: 15,
@@ -362,7 +362,7 @@ class _PageDatosMembresiaPagosState extends State<PageDatosMembresiaPagos> {
                           width: MediaQuery.of(context).size.width/1.1,
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                              image: NetworkImage(widget.membresiaPago.linkImagenDeposito),
+                              image: NetworkImage(widget.membresiaPago.depositImageLink),
                               fit: BoxFit.cover
                             )
                           ),
@@ -391,18 +391,19 @@ class _PageDatosMembresiaPagosState extends State<PageDatosMembresiaPagos> {
 class BotonResponderMembresiaPago extends StatelessWidget {
   const BotonResponderMembresiaPago({Key? key,required this.botonTexto,required this.membresiaPago}) : super(key: key);
   final String botonTexto;
-  final MembresiaPago membresiaPago;
+  final MembershipPayment membresiaPago;
   
   @override
   Widget build(BuildContext context) {
-    final usuario=Provider.of<UsuariosInfo>(context);
+    final usuario=Provider.of<UserProvider>(context);
     return graphql.Mutation(
       options: graphql.MutationOptions(
-        document: graphql.gql(getMutationResponderMembresiaPago()),
+        document: graphql.gql(mutationAnswerMembershipPayment()),
         onCompleted: (dynamic data){
           if(data!=null){
             //print(data["responderAgentePago"]);
-            membresiaPago.membresiaPagoCopy(MembresiaPago.fromMap(data["responderAgentePago"]));
+            //membresiaPago=MembershipPayment(MembershipPayment.fromMap(data["responderAgentePago"]));
+            //membresiaPago.membresiaPagoCopy(MembresiaPago.fromMap(data["responderAgentePago"]));
             Navigator.pop(context);
           }
         },
@@ -417,7 +418,7 @@ class BotonResponderMembresiaPago extends StatelessWidget {
         return ElevatedButton(
           onPressed: (){
             runMutation({
-              "id_administrador":usuario.getUsuario.id,
+              "id_administrador":usuario.user.id,
               "id":membresiaPago.id,
               "observaciones":"",
               "autorizacion":botonTexto
@@ -431,7 +432,7 @@ class BotonResponderMembresiaPago extends StatelessWidget {
 }
 Future<String> dialogResponderInscripcionAgente(
   BuildContext context,
-  InscripcionAgente inscripcionAgente
+  AgentRegistration inscripcionAgente
 )async{
   String respuesta="";
  return await showDialog(
@@ -487,7 +488,7 @@ Future<String> dialogResponderInscripcionAgente(
 }
 class ContainerDatosInscripcionAgente extends StatefulWidget {
   ContainerDatosInscripcionAgente({Key? key,required this.inscripcionAgente}) : super(key: key);
-  final InscripcionAgente inscripcionAgente;
+  final AgentRegistration inscripcionAgente;
   @override
   _ContainerDatosInscripcionAgenteState createState() => _ContainerDatosInscripcionAgenteState();
 }
@@ -528,11 +529,11 @@ class _ContainerDatosInscripcionAgenteState extends State<ContainerDatosInscripc
                      child: Column(
                        crossAxisAlignment: CrossAxisAlignment.start,
                        children: [
-                        Text("Nombres: ${widget.inscripcionAgente.usuarioSolicitante.nombres} ${widget.inscripcionAgente.usuarioSolicitante.apellidos}"),
-                        Text("Email: ${widget.inscripcionAgente.usuarioSolicitante.correo}"),
-                        Text("Ciudad: ${widget.inscripcionAgente.usuarioSolicitante.ciudad}"),
-                        Text("Agencia: ${widget.inscripcionAgente.usuarioSolicitante.nombreAgencia}"),
-                        Text("Web: ${widget.inscripcionAgente.usuarioSolicitante.web}"),
+                        Text("Nombres: ${widget.inscripcionAgente.userRequest.names} ${widget.inscripcionAgente.userRequest.surnames}"),
+                        Text("Email: ${widget.inscripcionAgente.userRequest.email}"),
+                        Text("Ciudad: ${widget.inscripcionAgente.userRequest.city}"),
+                        Text("Agencia: ${widget.inscripcionAgente.userRequest.agencyName}"),
+                        Text("Web: ${widget.inscripcionAgente.userRequest.web}"),
                        ],
                      ),
                    ),
@@ -564,7 +565,7 @@ class _ContainerDatosInscripcionAgenteState extends State<ContainerDatosInscripc
                           width: MediaQuery.of(context).size.width/1.1,
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                              image: NetworkImage(widget.inscripcionAgente.linkRespaldoSolicitud),
+                              image: NetworkImage(widget.inscripcionAgente.requestBackupLink),
                               fit: BoxFit.cover
                             )
                           ),
@@ -578,11 +579,11 @@ class _ContainerDatosInscripcionAgenteState extends State<ContainerDatosInscripc
                ),
              ),
              SizedBox(height:10),
-             TextFFBasico(
+             FTextFieldBasico(
                controller: controller!, 
                labelText: "Observaciones", 
                onChanged: (x){
-                 widget.inscripcionAgente.observaciones=x;
+                 widget.inscripcionAgente.observations=x;
                }
               )
            ],

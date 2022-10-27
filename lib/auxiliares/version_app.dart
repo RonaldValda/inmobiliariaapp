@@ -1,34 +1,37 @@
-class VersionAPP{
+class AppVersion{
   String id;
-  String numeroVersion;
-  String fechaPublicacion;
-  String linkDescarga;
-  VersionAPP({
+  String versionNumber;
+  String publicationDate;
+  String downloadLink;
+  AppVersion({
     required this.id,
-    required this.numeroVersion,
-    required this.fechaPublicacion,
-    required this.linkDescarga
+    required this.versionNumber,
+    required this.publicationDate,
+    required this.downloadLink
   });
-  factory VersionAPP.fromMap(Map<String,dynamic> map){
-    return VersionAPP(
+  factory AppVersion.fromMap(Map<String,dynamic> map){
+    return AppVersion(
       id: map["id"],
-      numeroVersion: map["numero_version"],
-      fechaPublicacion: map["fecha_publicacion"],
-      linkDescarga: map["link_descarga"]
+      versionNumber: map["numero_version"],
+      publicationDate: map["fecha_publicacion"],
+      downloadLink: map["link_descarga"]
     );
   }
-  factory VersionAPP.vacio(){
-    return VersionAPP(
+  factory AppVersion.empty(){
+    return AppVersion(
       id: "",
-      numeroVersion: "", 
-      fechaPublicacion: "", 
-      linkDescarga: ""
+      versionNumber: "", 
+      publicationDate: "", 
+      downloadLink: ""
     );
   }
-  bool verificarVersion(VersionAPP version){
-    if(this.numeroVersion==version.numeroVersion){
-      return true;
-    }
-    return false;
+  bool checkVersion(){
+    print(this.versionNumber==myAppVersionCurrent.versionNumber);
+    return this.versionNumber==myAppVersionCurrent.versionNumber;
   }
+
+  AppVersion get myAppVersionCurrent  => AppVersion(
+      id: "", versionNumber: "1.0.0.1", 
+      publicationDate: "", downloadLink: ""
+  );
 }

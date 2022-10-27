@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:inmobiliariaapp/ui/pages/home/widgets/item_property/item_property.dart';
 
 import 'package:inmobiliariaapp/ui/pages/inmuebles_buscados/widgets/filtros_imuebles_buscados.dart';
-import 'package:inmobiliariaapp/ui/pages/principal/widgets/container_listado_inmuebles.dart';
-import 'package:inmobiliariaapp/ui/pages/principal/widgets/inmueble_item/inmueble_item.dart';
 import 'package:inmobiliariaapp/ui/provider/lista_inmuebles_filtrado.dart';
-import 'package:inmobiliariaapp/ui/provider/usuarios_info.dart';
+import 'package:inmobiliariaapp/ui/provider/user/user_properties_searcheds.dart';
 import 'package:provider/provider.dart';
-import 'package:inmobiliariaapp/domain/usecases/inmueble/filtrado_inmuebles.dart' as filtrado_inmuebles;
+import 'package:inmobiliariaapp/domain/usecases/property/filter_properties.dart' as filtrado_inmuebles;
+
+import '../home/widgets/home/container_properties.dart';
 class PageMisInmueblesBuscados extends StatefulWidget {
   PageMisInmueblesBuscados({Key? key}) : super(key: key);
 
@@ -18,13 +19,14 @@ class _PageMisInmueblesBuscadosState extends State<PageMisInmueblesBuscados> {
   @override
   Widget build(BuildContext context) {
     final _inmueblesFiltrado=Provider.of<ListadoInmueblesFiltrado>(context); 
-    final _usuario=Provider.of<UsuariosInfo>(context);
     _inmueblesFiltrado.inmueblesBuscados=[];
+    final userPropertiesSearchedsProvider=context.watch<UserPropertiesSearchedsProvider>();
+    final userPropertiesSearcheds=userPropertiesSearchedsProvider.userPropertiesSearcheds;
     if(_inmueblesFiltrado.filtroBuscadoSeleccionado>=0){
-      _inmueblesFiltrado.inmueblesBuscados.addAll(filtrado_inmuebles.filtrarInmuebles(inmueblesTotalGeneral, _usuario.usuarioInmueblesBuscados[_inmueblesFiltrado.filtroBuscadoSeleccionado].toMap()));
+      _inmueblesFiltrado.inmueblesBuscados.addAll(filtrado_inmuebles.filterProperties(inmueblesTotalGeneral, userPropertiesSearcheds[_inmueblesFiltrado.filtroBuscadoSeleccionado].toMap()));
     }else{
-      for(int i=0;i<_usuario.usuarioInmueblesBuscados.length;i++){
-        _inmueblesFiltrado.inmueblesBuscados.addAll(filtrado_inmuebles.filtrarInmuebles(inmueblesTotalGeneral, _usuario.usuarioInmueblesBuscados[i].toMap()));
+      for(int i=0;i<userPropertiesSearcheds.length;i++){
+        _inmueblesFiltrado.inmueblesBuscados.addAll(filtrado_inmuebles.filterProperties(inmueblesTotalGeneral, userPropertiesSearcheds[i].toMap()));
       }
     }
     return Scaffold(
@@ -63,8 +65,8 @@ class _PageMisInmueblesBuscadosState extends State<PageMisInmueblesBuscados> {
               child: ListView.builder(
                 itemCount: _inmueblesFiltrado.inmueblesBuscados.length,
                 itemBuilder: (context, index) {
-                  var inmueble=_inmueblesFiltrado.inmueblesBuscados[index];
-                  return InmuebleItem(inmuebleTotal:inmueble,index:index);
+                  final propertyTotal=_inmueblesFiltrado.inmueblesBuscados[index];
+                  return ItemProperty(propertyTotal:propertyTotal,index:index);
                 },
               )
             )

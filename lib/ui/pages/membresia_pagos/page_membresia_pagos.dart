@@ -1,10 +1,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:inmobiliariaapp/auxiliares/datos_auxiliares.dart';
-import 'package:inmobiliariaapp/domain/entities/membresia_pago.dart';
-import 'package:inmobiliariaapp/domain/usecases/usuario/usecase_usuario.dart';
+import 'package:inmobiliariaapp/domain/entities/membership_payment.dart';
+import 'package:inmobiliariaapp/domain/usecases/user/usecase_user.dart';
 import 'package:inmobiliariaapp/ui/pages/planes_pago_membresia_info/page_registro_agentes.dart';
-import 'package:inmobiliariaapp/ui/provider/usuarios_info.dart';
+import 'package:inmobiliariaapp/ui/provider/user/user_provider.dart';
 import 'package:provider/provider.dart';
 class PageMembresiaPagos extends StatefulWidget {
   PageMembresiaPagos({Key? key}) : super(key: key);
@@ -14,17 +14,17 @@ class PageMembresiaPagos extends StatefulWidget {
 }
 
 class _PageMembresiaPagosState extends State<PageMembresiaPagos> {
-  List<MembresiaPago> membresiaPagos=[];
+  List<MembershipPayment> membresiaPagos=[];
   List membresiaPagosD=[];
   List<String> planes=["Básico","Medio","Avanzado"];
-  UseCaseUsuario useCaseUsuario=UseCaseUsuario();
-  late UsuariosInfo usProvider;
+  UseCaseUser useCaseUsuario=UseCaseUser();
+  late UserProvider usProvider;
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
-      usProvider=Provider.of<UsuariosInfo>(context,listen: false);
-      useCaseUsuario.obtenerMembresiaPagos(usProvider.usuario.id)
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      usProvider=Provider.of<UserProvider>(context,listen: false);
+      useCaseUsuario.getMembershipPayments(usProvider.user.id)
       .then((resultado){
         if(resultado["completado"]){
           membresiaPagos=resultado["membresia_pagos"];
@@ -37,7 +37,6 @@ class _PageMembresiaPagosState extends State<PageMembresiaPagos> {
   }
   @override
   Widget build(BuildContext context) {
-    final usuario=Provider.of<UsuariosInfo>(context);
     return Scaffold(
        appBar: AppBar(
          title: Text("Membresia Pagos"),
@@ -104,7 +103,7 @@ class _PageMembresiaPagosState extends State<PageMembresiaPagos> {
 }
 class ListaMembresiaPagos extends StatefulWidget {
   ListaMembresiaPagos({Key? key,required this.membresiaPagos}) : super(key: key);
-  final List<MembresiaPago> membresiaPagos;
+  final List<MembershipPayment> membresiaPagos;
   @override
   _ListaMembresiaPagosState createState() => _ListaMembresiaPagosState();
 }
@@ -121,7 +120,7 @@ class _ListaMembresiaPagosState extends State<ListaMembresiaPagos> {
               children: [
                 ListTile(
                   contentPadding: EdgeInsets.symmetric(horizontal: 10,vertical: 5),
-                  title: Text(widget.membresiaPagos[index].membresiaPlanesPago.nombrePlan,
+                  title: Text(widget.membresiaPagos[index].membershipPlanPayment.planName,
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold
@@ -130,16 +129,16 @@ class _ListaMembresiaPagosState extends State<ListaMembresiaPagos> {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Autorización: "+widget.membresiaPagos[index].autorizacionSuperUsuario,
+                      Text("Autorización: "+widget.membresiaPagos[index].authorizationSuperUser,
                         
                       ),
-                      widget.membresiaPagos[index].fechaInicio!=""?
-                      Text("Vigencia: ${formatFechaUTC(DateTime.parse(widget.membresiaPagos[index].fechaInicio))} / ${formatFechaUTC(DateTime.parse(widget.membresiaPagos[index].fechaFinal))}",
+                      widget.membresiaPagos[index].initialDate!=""?
+                      Text("Vigencia: ${formatFechaUTC(DateTime.parse(widget.membresiaPagos[index].initialDate))} / ${formatFechaUTC(DateTime.parse(widget.membresiaPagos[index].finalDate))}",
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold
                         ),
-                      ):Text("Fecha solicitud: ${formatFechaUTC(DateTime.parse(widget.membresiaPagos[index].fechaSolicitud))}",
+                      ):Text("Fecha solicitud: ${formatFechaUTC(DateTime.parse(widget.membresiaPagos[index].requestDate))}",
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold
@@ -152,7 +151,7 @@ class _ListaMembresiaPagosState extends State<ListaMembresiaPagos> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         
-                        Text(widget.membresiaPagos[index].montoPago.toString()+" Bs.",
+                        Text(widget.membresiaPagos[index].paymentAmount.toString()+" Bs.",
                           style: TextStyle(
                             fontSize: 25,
                             fontWeight: FontWeight.bold

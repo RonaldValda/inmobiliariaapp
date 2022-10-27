@@ -1,22 +1,21 @@
 
 import 'package:flutter/material.dart';
 import 'package:inmobiliariaapp/auxiliares/datos_auxiliares.dart';
-import 'package:inmobiliariaapp/data/repositories/usuario/super_usuario_repository_gql.dart';
-import 'package:inmobiliariaapp/domain/entities/banco.dart';
-import 'package:inmobiliariaapp/domain/entities/membresia_planes_pago.dart';
-import 'package:inmobiliariaapp/domain/usecases/generales/usecase_banco.dart';
-import 'package:inmobiliariaapp/domain/usecases/generales/usecase_membresia_planes_pago.dart';
-import 'package:inmobiliariaapp/domain/usecases/usuario/usecase_super_usuario.dart';
-import 'package:inmobiliariaapp/ui/pages/banco/widgets/bancoItem.dart';
+import 'package:inmobiliariaapp/domain/entities/bank.dart';
+import 'package:inmobiliariaapp/domain/entities/membership_plan_payment.dart';
+import 'package:inmobiliariaapp/domain/usecases/general/usecase_bank.dart';
+import 'package:inmobiliariaapp/ui/pages/administration_management/widgets/bank_item.dart';
 import 'package:inmobiliariaapp/ui/pages/membresia_formulario_deposito/page_formulario_deposito.dart';
-import 'package:inmobiliariaapp/ui/provider/usuarios_info.dart';
+import 'package:inmobiliariaapp/ui/provider/user/user_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:graphql_flutter/graphql_flutter.dart' as graphql;
-enum getTipoPagoAgente{
+
+import '../../../domain/usecases/general/usecase_membership_plan_payment.dart';
+import '../../../domain/usecases/user/usecase_super_user.dart';
+enum GetTipoPagoAgente{
   deposito,
   tarjeta
 }
-enum getPlanesPago{
+enum GetPlanesPago{
   basico,
   medio,
   avanzado
@@ -36,17 +35,17 @@ class _PagePlanesPagoMembresiaInfoState extends State<PagePlanesPagoMembresiaInf
   int tipoPago=0;
   int plan=0;
   List<dynamic> imagenComprobante=[""];
-  List<CuentaBanco> bancos=[];
+  List<BankAccount> bancos=[];
   List<dynamic> bancosD=[];
-  List<MembresiaPlanesPago> planes=[];
-  MembresiaPlanesPago planSelected=MembresiaPlanesPago.vacio();
+  List<MembershipPlanPayment> planes=[];
+  MembershipPlanPayment planSelected=MembershipPlanPayment.empty();
   List<dynamic> planesD=[];
   String fechaActivacion="";
   Map<String,dynamic>? mapFechaActivacion;
   int costoTotal=0;
-  UseCaseSuperUsuario useCaseSuperUsuario=UseCaseSuperUsuario();
-  UseCaseBanco useCaseBanco=UseCaseBanco();
-  UseCaseMembresiaPlanesPago useCaseMembresiaPlanesPago=UseCaseMembresiaPlanesPago();
+  UseCaseSuperUser useCaseSuperUsuario=UseCaseSuperUser();
+  UseCaseBank useCaseBanco=UseCaseBank();
+  UseCaseMembershipPlanPayment useCaseMembresiaPlanesPago=UseCaseMembershipPlanPayment();
   @override
   void initState() {
     super.initState();
@@ -54,11 +53,11 @@ class _PagePlanesPagoMembresiaInfoState extends State<PagePlanesPagoMembresiaInf
     _controllerWeb=TextEditingController(text:"");
     mapFechaActivacion=getAdelantarDias(true);
     costoTotal=getMontoPagar(mapFechaActivacion!, getPlanesPagoMes()[0]);
-    useCaseBanco.obtenerCuentasBanco()
+    useCaseBanco.getBankAccounts()
     .then((resultado){
       if(resultado["completado"]){
         bancos=resultado["cuentas_bancos"];
-        useCaseMembresiaPlanesPago.obtenerMembresiaPlanesPago().then((value) {
+        useCaseMembresiaPlanesPago.getMembershipPlanPayment().then((value) {
           if(value["completado"]){
             planes.addAll(value["membresias_planes_pago"]);
             setState(() {
@@ -71,9 +70,9 @@ class _PagePlanesPagoMembresiaInfoState extends State<PagePlanesPagoMembresiaInf
   }
   @override
   Widget build(BuildContext context) {
-    final usuario=Provider.of<UsuariosInfo>(context);
-    _controllerNombreAgencia!.text=usuario.getUsuario.getNombreAgencia;
-    _controllerWeb!.text=usuario.getUsuario.getWeb;
+    final usuario=Provider.of<UserProvider>(context);
+    _controllerNombreAgencia!.text=usuario.user.agencyName;
+    _controllerWeb!.text=usuario.user.web;
     
     return Scaffold(
       appBar: AppBar(
@@ -104,8 +103,8 @@ class _PagePlanesPagoMembresiaInfoState extends State<PagePlanesPagoMembresiaInf
                                   alignment: Alignment.centerLeft,
                                   child: Column(
                                     children: [
-                                      Text(plan.nombrePlan,style: TextStyle(fontSize: 18),),
-                                      Text(plan.costo.toString()+r" Bs.",
+                                      Text(plan.planName,style: TextStyle(fontSize: 18),),
+                                      Text(plan.cost.toString()+r" Bs.",
                                       style: TextStyle(
                                         fontSize: 20
                                       ),
@@ -117,7 +116,7 @@ class _PagePlanesPagoMembresiaInfoState extends State<PagePlanesPagoMembresiaInf
                                   value: planSelected.id==plan.id, 
                                   onChanged: (selected){
                                     planSelected=plan;
-                                    if(planSelected.costo==0){
+                                    if(planSelected.cost==0){
                                       tipoPago=0;
                                     }
                                     setState(() {
@@ -133,7 +132,7 @@ class _PagePlanesPagoMembresiaInfoState extends State<PagePlanesPagoMembresiaInf
                     ),
                   ),
                   //InfoPlanesPago(plan: planSelected.nombrePlan),
-                  planSelected.costo>0?Container(
+                  planSelected.cost>0?Container(
                   //color: Colors.amber,
                     child:Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -147,7 +146,7 @@ class _PagePlanesPagoMembresiaInfoState extends State<PagePlanesPagoMembresiaInf
                             Container(
                               child: Radio<int>(
                                 groupValue: tipoPago,
-                                value: getTipoPagoAgente.deposito.index,
+                                value: GetTipoPagoAgente.deposito.index,
                                 onChanged: (value){
                                   setState(() {
                                     tipoPago=value!;
@@ -169,7 +168,7 @@ class _PagePlanesPagoMembresiaInfoState extends State<PagePlanesPagoMembresiaInf
                             Container(
                               child: Radio<int>(
                                 groupValue: tipoPago,
-                                value: getTipoPagoAgente.tarjeta.index,
+                                value: GetTipoPagoAgente.tarjeta.index,
                                 onChanged: (value){
                                   setState(() {
                                     tipoPago=value!;
@@ -185,7 +184,7 @@ class _PagePlanesPagoMembresiaInfoState extends State<PagePlanesPagoMembresiaInf
                       ]
                     )
                   ):Container(),
-                  tipoPago==getTipoPagoAgente.deposito.index?
+                  tipoPago==GetTipoPagoAgente.deposito.index?
                   Container(
                     //color: Colors.amber,
                     height:MediaQuery.of(context).size.height/1.7,
@@ -196,7 +195,7 @@ class _PagePlanesPagoMembresiaInfoState extends State<PagePlanesPagoMembresiaInf
                             itemCount: bancos.length,
                             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
                             itemBuilder: (context,index){
-                              return BancoItem(banco: bancos[index]);
+                              return BankItem(bank: bancos[index]);
                             }
                           )
                         ),
@@ -219,7 +218,7 @@ class _PagePlanesPagoMembresiaInfoState extends State<PagePlanesPagoMembresiaInf
                     ),
                   ),
                   //tipoPago==getTipoPagoAgente.deposito.index?ContainerPago(imagenComprobante: imagenComprobante):Container(),
-                  tipoPago==getTipoPagoAgente.tarjeta.index?Column(
+                  tipoPago==GetTipoPagoAgente.tarjeta.index?Column(
                     children: [
                       Container(
                         child:Text("IMPORTANTE: La habilitación es al instante"),

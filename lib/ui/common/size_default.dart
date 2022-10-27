@@ -1,0 +1,36 @@
+class SizeDefault{
+  static const WIDTH_DEFAULT=412;
+  static const HEIGHT_DEFAULT=916;
+  static double _width=0.0;
+  static double _height=0.0;
+  set setWidth(double value) => _width=value;
+  set setHeight(double value) => _height=value;
+  static double get swidth => _width;
+  static double get sheight => _height;
+  static double get scaleWidth => _width/WIDTH_DEFAULT;
+  static double get scaleHeight => _width/WIDTH_DEFAULT;
+  static double get fSizeStandard => 13.0*scaleHeight;
+  static double get fSizeButton => 14.0*scaleHeight;
+  static double get fSizeHintTextField => 13.0*scaleHeight;
+  static double get fSizeLabel => 12.0*scaleHeight;
+  static double get paddingHorizontalBody => 20.0*SizeDefault.scaleWidth;
+  static double get paddingHorizontalText => 13.0*SizeDefault.scaleWidth;
+  static double get heightTextField => 40.0*scaleHeight;
+  static double get marginTopText => 3.0*SizeDefault.scaleHeight;
+  static double get marginBottomTextLabel => 3.0*SizeDefault.scaleHeight;
+  static double get fSizeTitle => 18.0*SizeDefault.scaleHeight;
+  static double get sizeIconButton => 22.0*SizeDefault.scaleHeight;
+  static double get heightSeparatedDropDown => 2.0*SizeDefault.scaleHeight;
+  static double get heightDropDown => 40.0*SizeDefault.scaleHeight;
+  static double get sizeIconAppBar => 30.0*SizeDefault.scaleHeight;
+  static double get sizeIconDrawer => 50.0*SizeDefault.scaleHeight;
+  static double get sizeIconAppBarOther => 22.0*SizeDefault.scaleHeight;
+  static double get preferredSizeAppBar => 60*SizeDefault.scaleHeight;
+  static double get radiusCircularIndicator => 35*SizeDefault.scaleHeight;
+  static double get radiusDialog => 20*SizeDefault.scaleHeight;
+  static double get fSizeListTileTitle => 13*SizeDefault.scaleHeight;
+  static double get fSizeListTileSubtitle => 11*SizeDefault.scaleHeight;
+  static double get widthBorderTextEnabled => 0.5*SizeDefault.scaleHeight;
+  static double get widthBorderTextDisabled => 0.5*SizeDefault.scaleWidth;
+  static double get widthBorderTextFocused => 1*SizeDefault.scaleWidth;
+}

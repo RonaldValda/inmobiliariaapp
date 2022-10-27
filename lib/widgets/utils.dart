@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
-SnackBar showSnackBar(String texto){
+import 'package:inmobiliariaapp/ui/common/colors_default.dart';
+import 'package:inmobiliariaapp/ui/common/size_default.dart';
+import 'package:inmobiliariaapp/ui/common/texts.dart';
+SnackBar showSnackBar(String texto,{Color? colorText}){
   SnackBar snackBar=SnackBar(
-    content: Text(texto),
+    dismissDirection: DismissDirection.vertical,
+    elevation: 5,
+    backgroundColor: ColorsDefault.colorText,
+    content: TextStandard(
+      text:texto,
+      fontSize: 11*SizeDefault.scaleWidth,
+      color: colorText??ColorsDefault.colorBackgroud,
+    ),
     action: SnackBarAction(
       label: 'OK',
+      textColor: ColorsDefault.colorBackgroud,
       onPressed: () {
         // Some code to undo the change.
       },

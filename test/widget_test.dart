@@ -7,7 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:inmobiliariaapp/ui/pages/principal/page_home.dart';
+import 'package:inmobiliariaapp/ui/pages/home/page_home.dart';
 
 
 void main() {

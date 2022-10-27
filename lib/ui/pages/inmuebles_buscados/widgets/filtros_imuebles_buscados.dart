@@ -1,9 +1,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart' as iconc;
-import 'package:inmobiliariaapp/domain/entities/usuarios_inmuebles_favoritos.dart';
+import 'package:inmobiliariaapp/domain/entities/user_property_favorite.dart';
 import 'package:inmobiliariaapp/ui/provider/lista_inmuebles_filtrado.dart';
-import 'package:inmobiliariaapp/ui/provider/usuarios_info.dart';
+import 'package:inmobiliariaapp/ui/provider/user/user_properties_searcheds.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 
@@ -20,16 +20,17 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
   List<Widget> children=[];
   @override
   Widget build(BuildContext context) {
-    final _usuario=Provider.of<UsuariosInfo>(context);
     final _inmueblesFiltrado=Provider.of<ListadoInmueblesFiltrado>(context); 
-    height=_usuario.usuarioInmueblesBuscados.length*60;
+    final userPropertiesSearchedsProvider=context.watch<UserPropertiesSearchedsProvider>();
+    final userPropertiesSearcheds=userPropertiesSearchedsProvider.userPropertiesSearcheds;
+    height=userPropertiesSearcheds.length*60;
     if(_inmueblesFiltrado.filtroBuscadoSeleccionado>=0){
       children=[];
       
-      children=generarTextoGenerales(_usuario.usuarioInmueblesBuscados[_inmueblesFiltrado.filtroBuscadoSeleccionado]);
-      children.addAll(generarTextoInternas(_usuario.usuarioInmueblesBuscados[_inmueblesFiltrado.filtroBuscadoSeleccionado]));
-      children.addAll(generarTextoComunidad(_usuario.usuarioInmueblesBuscados[_inmueblesFiltrado.filtroBuscadoSeleccionado]));
-      children.addAll(generarTextoOtros(_usuario.usuarioInmueblesBuscados[_inmueblesFiltrado.filtroBuscadoSeleccionado]));
+      children=generarTextoGenerales(userPropertiesSearcheds[_inmueblesFiltrado.filtroBuscadoSeleccionado]);
+      children.addAll(generarTextoInternas(userPropertiesSearcheds[_inmueblesFiltrado.filtroBuscadoSeleccionado]));
+      children.addAll(generarTextoComunidad(userPropertiesSearcheds[_inmueblesFiltrado.filtroBuscadoSeleccionado]));
+      children.addAll(generarTextoOtros(userPropertiesSearcheds[_inmueblesFiltrado.filtroBuscadoSeleccionado]));
       height+=children.length*16;
       if(MediaQuery.of(context).size.height/2<height){
         height=MediaQuery.of(context).size.height/2;
@@ -45,12 +46,12 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         children: [
           Expanded(
             child: ListView.builder(
-              itemCount: _usuario.usuarioInmueblesBuscados.length,
+              itemCount: userPropertiesSearcheds.length,
               itemBuilder: (context, index) {
                 return Column(
                   children: [
                     ListTile(
-                      title: Text("${_usuario.usuarioInmueblesBuscados[index].nombreConfiguracion}",
+                      title: Text("${userPropertiesSearcheds[index].configurationName}",
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight:FontWeight.w500
@@ -67,7 +68,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
                             ),
                             IconButton(
                               onPressed: ()async{
-                                String number = _usuario.usuarioInmueblesBuscados[index].numeroTelefono; //set the number here
+                                String number = userPropertiesSearcheds[index].phoneNumber; //set the number here
                                 await FlutterPhoneDirectCaller.callNumber(number);
                               }, 
                               icon: iconc.FaIcon(iconc.FontAwesomeIcons.phone)
@@ -110,7 +111,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
       ),
     );
   }
-  List<Widget> generarTextoGenerales(UsuarioInmuebleBuscado buscado){
+  List<Widget> generarTextoGenerales(UserPropertySearched searched){
     TextStyle style=TextStyle(
       fontSize: 14,
 
@@ -121,39 +122,39 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
 
     );
     List<Widget> children=[];
-    if(buscado.superficieTerrenoMin<buscado.superficieTerrenoMax){
+    if(searched.landSurfaceMin<searched.landSurfaceMax){
       children.add(
         Text(
-          "Superficie de terreno: " +buscado.superficieTerrenoMin.toString()+" - "+buscado.superficieTerrenoMax.toString(),
+          "Superficie de terreno: " +searched.landSurfaceMin.toString()+" - "+searched.landSurfaceMax.toString(),
           style: style,
         )
       );
     }
-    if(buscado.superficieConstruccionMin<buscado.superficieConstruccionMax){
+    if(searched.constructionSurfaceMin<searched.constructionSurfaceMax){
       children.add(
         Text(
-          "Superficie de construcción: " +buscado.superficieConstruccionMin.toString()+" - "+buscado.superficieConstruccionMax.toString(),
+          "Superficie de construcción: " +searched.constructionSurfaceMin.toString()+" - "+searched.constructionSurfaceMax.toString(),
           style: style,
         )
       );
     }
-    if(buscado.tamanioFrenteMin<buscado.tamanioFrenteMax){
+    if(searched.frontSizeMin<searched.frontSizeMax){
       children.add(
         Text(
-          "Metros de frente: " +buscado.tamanioFrenteMin.toString()+" - "+buscado.tamanioFrenteMax.toString(),
+          "Metros de frente: " +searched.frontSizeMin.toString()+" - "+searched.frontSizeMax.toString(),
           style: style,
         )
       );
     }
-    if(buscado.antiguedadConstruccionMin<buscado.antiguedadConstruccionMax){
+    if(searched.constructionAntiquityMin<searched.constructionAntiquityMax){
       children.add(
         Text(
-          "Antigûedad de construcción: " +buscado.antiguedadConstruccionMin.toString()+" - "+buscado.antiguedadConstruccionMax.toString(),
+          "Antigûedad de construcción: " +searched.constructionAntiquityMin.toString()+" - "+searched.constructionAntiquityMax.toString(),
           style: style,
         )
       );
     }
-    if(buscado.mascotasPermitidas){
+    if(searched.enablePets){
       children.add(
         Text(
           "Mascotas permitidas" ,
@@ -161,7 +162,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.sinHipoteca){
+    if(searched.noMortgage){
       children.add(
         Text(
           "Sin hipoteca" ,
@@ -169,7 +170,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.construccionEstrenar){
+    if(searched.newConstruction){
       children.add(
         Text(
           "Construcciones a estrenar " ,
@@ -177,7 +178,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.materialesPrimera){
+    if(searched.premiumMaterials){
       children.add(
         Text(
           "Materiales de primera " ,
@@ -185,7 +186,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.proyectoPreventa){
+    if(searched.preSaleProject){
       children.add(
         Text(
           "Proyecto preventa " ,
@@ -193,15 +194,15 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.inmuebleCompartido){
+    if(searched.sharedProperty){
       children.add(
         Text(
-          "Inmueble compartido: "+buscado.numeroDuenios.toString(),
+          "Inmueble compartido: "+searched.ownersNumber.toString(),
           style: style,
         )
       );
     }
-    if(buscado.serviciosBasicos){
+    if(searched.basicServices){
       children.add(
         Text(
           "Servicios basicos " ,
@@ -209,7 +210,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.gasDomiciliario){
+    if(searched.householdGas){
       children.add(
         Text(
           "Gas domiciliario " ,
@@ -217,7 +218,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.wifi){
+    if(searched.wifi){
       children.add(
         Text(
           "Wi-Fi " ,
@@ -225,7 +226,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.medidorIndependiente){
+    if(searched.independentMeter){
       children.add(
         Text(
           "Medidor independiente " ,
@@ -233,7 +234,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.termotanque){
+    if(searched.hotWaterTank){
       children.add(
         Text(
           "Termotanques " ,
@@ -241,7 +242,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.calleAsfaltada){
+    if(searched.pavedStreet){
       children.add(
         Text(
           "Calle alfaltada " ,
@@ -249,7 +250,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.transporte){
+    if(searched.transport){
       children.add(
         Text(
           "Transporte " ,
@@ -257,7 +258,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.preparadoDiscapacidad){
+    if(searched.disabilityPrepared){
       children.add(
         Text(
           "Preparado para discapacidad " ,
@@ -265,7 +266,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.papelesOrden){
+    if(searched.orderPapers){
       children.add(
         Text(
           "Papeles en orden " ,
@@ -273,7 +274,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.habilitadoCredito){
+    if(searched.enabledCredit){
       children.add(
         Text(
           "Habilitado crédito de vivienda social " ,
@@ -291,7 +292,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
     }
     return children;
   }
-  List<Widget> generarTextoOtros(UsuarioInmuebleBuscado buscado){
+  List<Widget> generarTextoOtros(UserPropertySearched searched){
     TextStyle style=TextStyle(
       fontSize: 14,
 
@@ -304,7 +305,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
     
     List<Widget> children=[];
     
-    if(buscado.rematesJudiciales){
+    if(searched.judicialAuctions){
       children.add(
         Text(
           "Remates judiciales",
@@ -312,15 +313,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.imagenes2D){
-      children.add(
-        Text(
-          "Imágenes 2D",
-          style: style,
-        )
-      );
-    }
-    if(buscado.video2D){
+    if(searched.video2DLink){
       children.add(
         Text(
           "Vídeo 2D",
@@ -328,7 +321,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.tourVirtual360){
+    if(searched.tourVirtual360Link){
       children.add(
         Text(
           "Tour virtual 360",
@@ -336,7 +329,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.videoTour360){
+    if(searched.videoTour360Link){
       children.add(
         Text(
           "Vídeo tour 360",
@@ -354,7 +347,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
     }
     return children; 
   }
-  List<Widget> generarTextoComunidad(UsuarioInmuebleBuscado buscado){
+  List<Widget> generarTextoComunidad(UserPropertySearched searched){
     TextStyle style=TextStyle(
       fontSize: 14,
 
@@ -367,7 +360,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
     
     List<Widget> children=[];
     
-    if(buscado.iglesia){
+    if(searched.church){
       children.add(
         Text(
           "Iglesia",
@@ -375,7 +368,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.parqueInfantil){
+    if(searched.playground){
       children.add(
         Text(
           "Parque infantil",
@@ -383,7 +376,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.escuela){
+    if(searched.school){
       children.add(
         Text(
           "Escuela",
@@ -391,7 +384,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.universidad){
+    if(searched.university){
       children.add(
         Text(
           "Universidad",
@@ -399,7 +392,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.plazuela){
+    if(searched.smallSquare){
       children.add(
         Text(
           "Plazuela",
@@ -407,7 +400,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.moduloPolicial){
+    if(searched.policeModule){
       children.add(
         Text(
           "Módulo policial",
@@ -415,7 +408,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.saunaPiscinaPublica){
+    if(searched.publicSaunaPool){
       children.add(
         Text(
           "Sauna / piscina pública",
@@ -423,7 +416,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.gymPublico){
+    if(searched.publicGym){
       children.add(
         Text(
           "Gym público",
@@ -431,7 +424,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.centroDeportivo){
+    if(searched.sportCenter){
       children.add(
         Text(
           "Centro deportivo",
@@ -439,7 +432,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.puestoSalud){
+    if(searched.postHeath){
       children.add(
         Text(
           "Puesto de salud",
@@ -447,7 +440,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.zonaComercial){
+    if(searched.shoopingZone){
       children.add(
         Text(
           "Zona comercial",
@@ -465,7 +458,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
     }
     return children;
   }
-  List<Widget> generarTextoInternas(UsuarioInmuebleBuscado buscado){
+  List<Widget> generarTextoInternas(UserPropertySearched searched){
     TextStyle style=TextStyle(
       fontSize: 14,
 
@@ -476,47 +469,47 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
 
     );
     List<Widget> children=[];
-    if(buscado.plantas>0){
+    if(searched.floorsNumber>0){
       children.add(
         Text(
-          "Plantas: ${buscado.plantas}",
+          "Plantas: ${searched.floorsNumber}",
           style: style,
         )
       );
     }
-    if(buscado.ambientes>0){
+    if(searched.roomsNumber>0){
       children.add(
         Text(
-          "Ambientes: ${buscado.ambientes}",
+          "Ambientes: ${searched.roomsNumber}",
           style: style,
         )
       );
     }
-    if(buscado.dormitorios>0){
+    if(searched.bedroomsNumber>0){
       children.add(
         Text(
-          "Dormitorios: ${buscado.dormitorios}",
+          "Dormitorios: ${searched.bedroomsNumber}",
           style: style,
         )
       );
     }
-    if(buscado.banios>0){
+    if(searched.bathroomsNumber>0){
       children.add(
         Text(
-          "Baños: ${buscado.banios}",
+          "Baños: ${searched.bathroomsNumber}",
           style: style,
         )
       );
     }
-    if(buscado.garaje>0){
+    if(searched.garagesNumber>0){
       children.add(
         Text(
-          "Garaje [Vehículos]: ${buscado.garaje}",
+          "Garaje [Vehículos]: ${searched.garagesNumber}",
           style: style,
         )
       );
     }
-    if(buscado.amoblado){
+    if(searched.furnished){
       children.add(
         Text(
           "Amoblado",
@@ -524,7 +517,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.lavanderia){
+    if(searched.laundry){
       children.add(
         Text(
           "Lavanderia",
@@ -532,7 +525,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.cuartoLavado){
+    if(searched.laundryRoom){
       children.add(
         Text(
           "Cuarto de lavado",
@@ -540,7 +533,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.churrasquero){
+    if(searched.grill){
       children.add(
         Text(
           "Churrasquero",
@@ -548,7 +541,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.azotea){
+    if(searched.rooftop){
       children.add(
         Text(
           "Azotea",
@@ -556,7 +549,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.condominioPrivado){
+    if(searched.privateCondominium){
       children.add(
         Text(
           "[Club house]-> Condominio privado",
@@ -564,7 +557,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.cancha){
+    if(searched.court){
       children.add(
         Text(
           "Cancha de fútbol, tenis, etc. en inmueble",
@@ -572,7 +565,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.piscina){
+    if(searched.pool){
       children.add(
         Text(
           "Piscina",
@@ -580,7 +573,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.sauna){
+    if(searched.sauna){
       children.add(
         Text(
           "Sauna",
@@ -588,7 +581,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.jacuzzi){
+    if(searched.jacuzzi){
       children.add(
         Text(
           "Jacuzzi",
@@ -596,7 +589,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.estudio){
+    if(searched.studio){
       children.add(
         Text(
           "Estudio",
@@ -604,7 +597,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.jardin){
+    if(searched.garden){
       children.add(
         Text(
           "Jardín",
@@ -612,7 +605,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.portonElectrico){
+    if(searched.electricGate){
       children.add(
         Text(
           "Portón eléctrico",
@@ -620,7 +613,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.aireAcondicionado){
+    if(searched.airConditioning){
       children.add(
         Text(
           "Aire acondicionado",
@@ -628,7 +621,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.calefaccion){
+    if(searched.heating){
       children.add(
         Text(
           "Calefacción",
@@ -636,7 +629,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.ascensor){
+    if(searched.elevator){
       children.add(
         Text(
           "Ascensor",
@@ -644,7 +637,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.deposito){
+    if(searched.warehouse){
       children.add(
         Text(
           "Depósito",
@@ -652,7 +645,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.sotano){
+    if(searched.basement){
       children.add(
         Text(
           "Sótano",
@@ -660,7 +653,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.tienda){
+    if(searched.store){
       children.add(
         Text(
           "Tienda",
@@ -668,7 +661,7 @@ class _FiltrosInmueblesBuscadosState extends State<FiltrosInmueblesBuscados> {
         )
       );
     }
-    if(buscado.amuralladoTerreno){
+    if(searched.landWalled){
       children.add(
         Text(
           "[Amurallado]-> Terreno",

@@ -1,14 +1,14 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:inmobiliariaapp/domain/entities/inmueble_total.dart';
-import 'package:inmobiliariaapp/ui/pages/principal/widgets/container_listado_inmuebles.dart';
-import 'package:inmobiliariaapp/domain/usecases/inmueble/filtrado_inmuebles.dart';
+import 'package:inmobiliariaapp/domain/entities/property_total.dart';
+import 'package:inmobiliariaapp/domain/usecases/property/filter_properties.dart';
+
+import '../pages/home/widgets/home/container_properties.dart';
 class ListadoInmueblesFiltrado with ChangeNotifier{
-  List<InmuebleTotal> inmueblessTotal=[];
-  List<InmuebleTotal> inmueblesTotalGeneralAux=[];
-  List<InmuebleTotal> inmueblessTotalGeneral=[];
-  List<InmuebleTotal> inmueblesBuscados=[];
-  List<InmuebleTotal> inmueblesNuevos=[];
+  List<PropertyTotal> inmueblessTotal=[];
+  List<PropertyTotal> inmueblesTotalGeneralAux=[];
+  List<PropertyTotal> inmueblessTotalGeneral=[];
+  List<PropertyTotal> inmueblesBuscados=[];
+  List<PropertyTotal> inmueblesNuevos=[];
   int filtroBuscadoSeleccionado=-1;
   bool filtrar=false;
   bool consultarBD=false;
@@ -44,10 +44,10 @@ class ListadoInmueblesFiltrado with ChangeNotifier{
     }
     return colores[i];
   }
-  void setInmueblesBuscados(List<InmuebleTotal> inmuebleTotal){
+  void setInmueblesBuscados(List<PropertyTotal> inmuebleTotal){
     this.inmueblesBuscados=inmueblesBuscados;
   }
-  void setInmueblesTotal(List<InmuebleTotal> inmuebleTotal){
+  void setInmueblesTotal(List<PropertyTotal> inmuebleTotal){
     this.inmueblessTotal=inmuebleTotal;
     //inmueblesTotalAux=[];
     //this.inmueblesTotalAux.addAll(inmueblesTotal);
@@ -61,7 +61,7 @@ class ListadoInmueblesFiltrado with ChangeNotifier{
     }*/
     
   }
-  void setInmueblesNuevos(List<InmuebleTotal> inmuebles){
+  void setInmueblesNuevos(List<PropertyTotal> inmuebles){
     this.inmueblesNuevos=inmuebles;
   }
   void setFiltroBuscadoSeleccionado(int selected){
@@ -77,24 +77,24 @@ class ListadoInmueblesFiltrado with ChangeNotifier{
   bool get isConsultar{
     return this.consultarBD;
   }
-  List<InmuebleTotal> get getInmueblesTotal{
+  List<PropertyTotal> get getInmueblesTotal{
     return this.inmueblessTotal;
   }
-  void setInmueblesTotalGeneral(List<InmuebleTotal> inmueblesTotalGeneral){
+  void setInmueblesTotalGeneral(List<PropertyTotal> inmueblesTotalGeneral){
     this.inmueblessTotalGeneral=inmueblesTotalGeneral;
     this.inmueblesTotalGeneralAux=inmueblesTotalGeneral;
     //notifyListeners();
   }
-  List<InmuebleTotal> get getInmueblesTotalGeneral{
+  List<PropertyTotal> get getInmueblesTotalGeneral{
     return this.inmueblessTotalGeneral;
   }
-  void setInmueblesItem(InmuebleTotal inmuebleTotal,Map<String,dynamic> mapaFiltroOrden,String accion){
+  void setInmueblesItem(PropertyTotal inmuebleTotal,Map<String,dynamic> mapaFiltroOrden,String accion){
     
     //setInmueblesTotalGeneral(modificarListaInmuebleTotal(inmueblesTotalGeneral, inmuebleTotal,accion));
     //inmueblesTotalGeneralAux=[];
     
    // print("antes ${inmueblesTotalGeneral[inmueblesTotalGeneral.length-1].getInmueble.indice}");
-    inmueblesTotalGeneral=modificarListaInmuebleTotal(inmueblesTotalGeneral, inmuebleTotal,accion);
+    inmueblesTotalGeneral=updateListPropertyTotal(inmueblesTotalGeneral, inmuebleTotal,accion);
    // print("despues ${inmueblesTotalGeneral[inmueblesTotalGeneral.length-1].getInmueble.indice}");
     //modificarListaInmuebleTotal(inmueblesTotalAux, inmuebleTotal,accion);
     

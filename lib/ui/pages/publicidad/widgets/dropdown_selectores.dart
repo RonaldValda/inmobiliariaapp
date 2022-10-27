@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:inmobiliariaapp/domain/entities/publicidad.dart';
-import 'package:inmobiliariaapp/ui/provider/datos_generales_info.dart';
+import 'package:inmobiliariaapp/domain/entities/publicity.dart';
+import 'package:inmobiliariaapp/ui/provider/generals/general_data_provider.dart';
 import 'package:provider/provider.dart';
 class DropdownTipoContratoPublicidad extends StatefulWidget {
   DropdownTipoContratoPublicidad({Key? key,required this.publicidad}) : super(key: key);
-  final Publicidad publicidad;
+  final Publicity publicidad;
   @override
   _DropdownTipoContratoPublicidadState createState() => _DropdownTipoContratoPublicidadState();
 }
@@ -33,9 +33,9 @@ class _DropdownTipoContratoPublicidadState extends State<DropdownTipoContratoPub
           
         },
         dropdownColor: Colors.white.withOpacity(0.8),
-        value: widget.publicidad.tipoContrato,
+        value: widget.publicidad.contractType,
         onChanged: (String? value){
-          widget.publicidad.tipoContrato=value!;
+          widget.publicidad.contractType=value!;
           setState(() {
             valor=value;
             dropdownActivado=false;
@@ -56,7 +56,7 @@ class _DropdownTipoContratoPublicidadState extends State<DropdownTipoContratoPub
 }
 class DropdownTipoInmueblePublicidad extends StatefulWidget {
   DropdownTipoInmueblePublicidad({Key? key,required this.publicidad}) : super(key: key);
-  final Publicidad publicidad;
+  final Publicity publicidad;
   @override
   _DropdownTipoInmueblePublicidadState createState() => _DropdownTipoInmueblePublicidadState();
 }
@@ -84,9 +84,9 @@ class _DropdownTipoInmueblePublicidadState extends State<DropdownTipoInmueblePub
           
         },
         dropdownColor: Colors.white.withOpacity(0.8),
-        value: widget.publicidad.tipoInmueble,
+        value: widget.publicidad.propertyType,
         onChanged: (String? value){
-          widget.publicidad.tipoInmueble=value!;
+          widget.publicidad.propertyType=value!;
           setState(() {
             dropdownActivado=false;
           });
@@ -106,7 +106,7 @@ class _DropdownTipoInmueblePublicidadState extends State<DropdownTipoInmueblePub
 }
 class DropdownPrecioPublicidad extends StatefulWidget {
   DropdownPrecioPublicidad({Key? key,required this.publicidad}) : super(key: key);
-  final Publicidad publicidad;
+  final Publicity publicidad;
   @override
   _DropdownPrecioPublicidadState createState() => _DropdownPrecioPublicidadState();
 }
@@ -124,13 +124,13 @@ class _DropdownPrecioPublicidadState extends State<DropdownPrecioPublicidad> {
   }
   @override
   Widget build(BuildContext context) {
-    if(widget.publicidad.precioMax<widget.publicidad.precioMin){
+    if(widget.publicidad.maxPrice<widget.publicidad.minPrice){
       valor=items[0];
-    }else if(widget.publicidad.precioMin==widget.publicidad.precioMax){
+    }else if(widget.publicidad.minPrice==widget.publicidad.maxPrice){
       valor=items[items.length-1];
     }else{
       for(int i=1;i<precios.length-1;i++){
-        if(precios[i]==widget.publicidad.precioMin){
+        if(precios[i]==widget.publicidad.minPrice){
           valor=items[i];
           break;
         }
@@ -162,11 +162,11 @@ class _DropdownPrecioPublicidadState extends State<DropdownPrecioPublicidad> {
               onChanged: (String? value){
                 int index=items.indexOf(value!);
                 if(index<precios.length-1){
-                  widget.publicidad.precioMin=precios[index]*1000;
-                  widget.publicidad.precioMax=(precios[index+1]-1)*1000;
+                  widget.publicidad.minPrice=precios[index]*1000;
+                  widget.publicidad.maxPrice=(precios[index+1]-1)*1000;
                 }else{
-                  widget.publicidad.precioMin=precios[index]*1000;
-                  widget.publicidad.precioMax=precios[index]*1000;
+                  widget.publicidad.minPrice=precios[index]*1000;
+                  widget.publicidad.maxPrice=precios[index]*1000;
                 }
                 setState(() {
                   valor=value;
@@ -191,7 +191,7 @@ class _DropdownPrecioPublicidadState extends State<DropdownPrecioPublicidad> {
 }
 class DropdownCiudadPublicidad extends StatefulWidget {
   DropdownCiudadPublicidad({Key? key,required this.publicidad}) : super(key: key);
-  final Publicidad publicidad;
+  final Publicity publicidad;
   @override
   _DropdownCiudadPublicidadState createState() => _DropdownCiudadPublicidadState();
 }
@@ -207,15 +207,15 @@ class _DropdownCiudadPublicidadState extends State<DropdownCiudadPublicidad> {
   }
   @override
   Widget build(BuildContext context) {
-    final _datosGenerales=Provider.of<DatosGeneralesInfo>(context);
+    final _datosGenerales=Provider.of<GeneralDataProvider>(context);
     if(ciudades.length==0){
-      _datosGenerales.ciudades.forEach((element) { 
-        ciudades.add(element.nombreCiudad);
+      _datosGenerales.cities.forEach((element) { 
+        ciudades.add(element.cityName);
         
       });
     }
-    if(widget.publicidad.ciudad==""){
-      widget.publicidad.ciudad=ciudades[0];
+    if(widget.publicidad.city==""){
+      widget.publicidad.city=ciudades[0];
     }
     return Container(
        //width: widget.publicidad.ciudad.length*11,
@@ -237,9 +237,9 @@ class _DropdownCiudadPublicidadState extends State<DropdownCiudadPublicidad> {
                 
               },
               dropdownColor: Colors.white.withOpacity(0.8),
-              value: widget.publicidad.ciudad,
+              value: widget.publicidad.city,
               onChanged: (String? value){
-                widget.publicidad.ciudad=value!;
+                widget.publicidad.city=value!;
                 setState(() {
                   dropdownActivado=false;
                 });

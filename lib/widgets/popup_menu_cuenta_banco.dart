@@ -1,12 +1,17 @@
 
 import 'package:flutter/material.dart';
-import 'package:inmobiliariaapp/domain/entities/banco.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:inmobiliariaapp/domain/entities/bank.dart';
+import 'package:inmobiliariaapp/ui/common/colors_default.dart';
+import 'package:inmobiliariaapp/ui/common/texts.dart';
+
+import '../ui/common/size_default.dart';
 class PopupMenuCuentaBanco extends StatefulWidget {
   PopupMenuCuentaBanco({Key? key,required this.cuentaBanco,required this.bancos,
   required this.heightContainer,
   required this.widthContainer,required this.widthEtiqueta}) : super(key: key);
-  final CuentaBanco cuentaBanco;
-  final List<CuentaBanco> bancos;
+  final BankAccount cuentaBanco;
+  final List<BankAccount> bancos;
   final double heightContainer;
   final double widthContainer;
   final double widthEtiqueta;
@@ -20,33 +25,20 @@ class _PopupMenuCuentaBancoState extends State<PopupMenuCuentaBanco> {
   String cuenta="Seleccione la cuenta";
   @override
   Widget build(BuildContext context) {
-    cuenta="${widget.cuentaBanco.nombreBanco} | ${widget.cuentaBanco.numeroCuenta}";
+    cuenta=widget.cuentaBanco.bankName==""?"":"${widget.cuentaBanco.accountNumber} (${widget.cuentaBanco.bankName})";
     return Container(
-        height:widget.heightContainer,
-        width: widget.widthContainer,
-        //color:Colors.orange,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            TextLabel(textLabel: "Cuenta"),
             Container(
-              //color: Colors.red,
-              width: widget.widthEtiqueta,
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text("Cuenta ",
-                  style: TextStyle(
-                    color: color,
-                  ),
-                )
-              ),
-            ),
-            Expanded(
-              child: Container(
                 height: widget.heightContainer,
+                width: widget.widthContainer,
                 padding:EdgeInsets.symmetric(horizontal: 5,vertical: 10),
                 decoration: BoxDecoration(
-                  border: Border.all(color: color,width: 1),
-                  borderRadius: BorderRadius.circular(5),
-                  color: Colors.white
+                  border: Border.all(color: ColorsDefault.colorBorder,width: 1*SizeDefault.scaleHeight),
+                  borderRadius: BorderRadius.circular(7),
+                  color: ColorsDefault.colorTextFieldBackground
                 ),
                 child: PopupMenuButton(
                   tooltip: "Seleccione cuenta de banco",
@@ -56,16 +48,17 @@ class _PopupMenuCuentaBancoState extends State<PopupMenuCuentaBanco> {
                   enableFeedback: false,
                   onCanceled: (){
                     setState(() {
-                      cuenta="${widget.cuentaBanco.nombreBanco} | ${widget.cuentaBanco.numeroCuenta}";
+                      cuenta="${widget.cuentaBanco.accountNumber} (${widget.cuentaBanco.bankName})";
                     });
                   },
                   //icon:Icon(Icons.more_vert),
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(cuenta,
-                      style:TextStyle(
-                        fontSize: 15,
-                        color: color.withOpacity(0.8)
+                    child: Text(
+                      cuenta,
+                      style: GoogleFonts.notoSans(
+                        color: ColorsDefault.colorText,
+                        fontSize: SizeDefault.fSizeStandard
                       ),
                     )
                   ),
@@ -82,7 +75,6 @@ class _PopupMenuCuentaBancoState extends State<PopupMenuCuentaBanco> {
                   }
                 ),
               ),
-            ),
           ],
         ),
       );
@@ -90,8 +82,8 @@ class _PopupMenuCuentaBancoState extends State<PopupMenuCuentaBanco> {
 }
 class PopupMenuItemCuentasBancos extends StatelessWidget {
   const PopupMenuItemCuentasBancos({Key? key,required this.cuentaBanco,required this.bancos}) : super(key: key);
-  final CuentaBanco cuentaBanco;
-  final List<CuentaBanco> bancos;
+  final BankAccount cuentaBanco;
+  final List<BankAccount> bancos;
   @override
   Widget build(BuildContext context) {
     print(bancos.length);
@@ -106,12 +98,23 @@ class PopupMenuItemCuentasBancos extends StatelessWidget {
               itemCount: bancos.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  title: Text("Nº Cuenta: ${bancos[index].numeroCuenta}"),
+                  title: TextStandard(
+                    text: "Nº Cuenta: ${bancos[index].accountNumber}", 
+                    fontSize: 18*SizeDefault.scaleHeight,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  //title: Text("Nº Cuenta: ${bancos[index].numeroCuenta}"),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Entidad Financiera: ${bancos[index].nombreBanco}"),
-                      Text("Titular Cuenta: ${bancos[index].titular}")
+                      TextStandard(
+                        text: "Entidad Financiera: ${bancos[index].bankName}", 
+                        fontSize: 16*SizeDefault.scaleHeight,
+                      ),
+                      TextStandard(
+                        text: "Titular Cuenta: ${bancos[index].owner}", 
+                        fontSize: 16*SizeDefault.scaleHeight,
+                      ),
                     ],
                   ),
                   onTap: (){
